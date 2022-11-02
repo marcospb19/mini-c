@@ -4,6 +4,7 @@ version = "0.0.1"
 edition = "2021"
 
 [dependencies]
+logos = "0.12.1"
 
 [dev-dependencies]
 insta = "1.21.0"

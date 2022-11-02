@@ -1,5 +1,7 @@
 #![feature(custom_inner_attributes)]
 
+mod lexer;
+
 use std::io::{stderr, stdout, Write};
 
 #[allow(dead_code)]
