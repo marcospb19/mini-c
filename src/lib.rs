@@ -1,8 +1,12 @@
 #![feature(custom_inner_attributes)]
 
-mod lexer;
+pub mod ast;
+pub mod lexer;
+pub mod parser;
 
 use std::io::{stderr, stdout, Write};
+
+use self::{lexer::Lexer, parser::ProgramParser};
 
 #[allow(dead_code)]
 struct Environment<W1, W2>
@@ -21,12 +25,16 @@ pub fn run_sushi(_input: &str) -> Result<(), ()> {
     return Ok(());
 }
 
-pub fn test_sushi(_input: impl AsRef<str>) -> Result<OutputCapture, ()> {
+pub fn test_sushi(input: impl AsRef<str>) -> Result<OutputCapture, ()> {
+    let input = input.as_ref();
     let (mut stdout, mut stderr) = (vec![], vec![]);
     let _environment = Environment {
         stdout: &mut stdout,
         stderr: &mut stderr,
     };
+
+    let lexer = Lexer::new(input);
+    let _ast = ProgramParser::new().parse(input, lexer).unwrap();
 
     let vec_to_string = |vec| String::from_utf8(vec).expect("Sushi output must be valid utf8");
 

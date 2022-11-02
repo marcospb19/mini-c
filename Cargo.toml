@@ -4,11 +4,15 @@ version = "0.0.1"
 edition = "2021"
 
 [dependencies]
+lalrpop-util = { version = "0.19.8", default-features = false }
 logos = "0.12.1"
 
 [dev-dependencies]
 insta = "1.21.0"
 unindent = "0.1.10"
+
+[build-dependencies]
+lalrpop = { version = "0.19.8", default-features = false }
 
 # Speed up tests
 [profile.dev.package]
