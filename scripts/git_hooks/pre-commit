@@ -1,0 +1,7 @@
+printf "Cleaning insta snapshots..."
+git stash push --message 'websocket.rs implementation'
+git stash push --keep-index --message 'commit hook auto stash'
+scripts/clear-snapshots.sh
+git add src/snapshots
+git stash pop
+echo " Done!"
