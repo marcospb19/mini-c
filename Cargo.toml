@@ -4,3 +4,13 @@ version = "0.0.1"
 edition = "2021"
 
 [dependencies]
+
+[dev-dependencies]
+insta = "1.21.0"
+unindent = "0.1.10"
+
+# Speed up tests
+[profile.dev.package]
+insta = { opt-level = 3 }
+similar = { opt-level = 3 }
+unindent = { opt-level = 3 }
