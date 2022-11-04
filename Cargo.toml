@@ -19,3 +19,5 @@ lalrpop = { version = "0.19.8", default-features = false }
 insta = { opt-level = 3 }
 similar = { opt-level = 3 }
 unindent = { opt-level = 3 }
+# Speeds up grammar updates, but takes a long time first time
+lalrpop = { opt-level = 3 }

@@ -1,18 +1,75 @@
-use crate::{ast::Statement, lexer::Token};
+use std::str::FromStr;
+
+use crate::{ast::{Statement, Expression, Value, BinaryOperation, Ident}, lexer::Token};
 
 grammar<'input>(input: &'input str);
 
 pub Program = Statement*;
 
-Statement = EmptyStatement;
+Statement = {
+    EmptyStatement,
+    ExpressionStatement,
+};
 EmptyStatement: Statement = ";" => Statement::Empty;
+ExpressionStatement: Statement = <Expression> ";" => Statement::Expression(<>);
+
+Expression = {
+    Equality,
+};
+Equality = Level<EqualityOperator, Comparison>;
+Comparison = Level<ComparisonOperator, Term>;
+Term = Level<TermOperator, Factor>;
+Factor = Level<FactorOperator, Primary>;
+Primary = {
+    "(" <Expression> ")",
+    VariableExpression,
+    Literal => Expression::Literal(<>),
+};
+VariableExpression: Expression = Ident => Expression::Variable(<>);
+
+Literal: Value = {
+    Number,
+    Boolean,
+};
+Ident: Ident = IDENT => <>.to_owned();
+Number: Value = NUMBER => Value::Number(i32::from_str(<>).unwrap());
+Boolean: Value = {
+    "true" => Value::Bool(true),
+    "false" => Value::Bool(false),
+};
+
+EqualityOperator: BinaryOperation = {
+    "==" => BinaryOperation::Equals,
+    "!=" => BinaryOperation::NotEquals,
+};
+ComparisonOperator: BinaryOperation = {
+    "<" => BinaryOperation::Less,
+    "<=" => BinaryOperation::LessOrEquals,
+    ">" => BinaryOperation::Greater,
+    ">=" => BinaryOperation::GreaterOrEquals,
+};
+TermOperator: BinaryOperation = {
+    "+" => BinaryOperation::Add,
+    "-" => BinaryOperation::Subtract,
+};
+FactorOperator: BinaryOperation = {
+    "*" => BinaryOperation::Multiply,
+    "/" => BinaryOperation::Divide,
+};
+
+// Macro: precedence level definition macro for binary expressions
+Level<Operator, NextLevel>: Expression = {
+    <l:Level<Operator,NextLevel>> <op:Operator> <r:NextLevel> =>
+        Expression::Binary(box l, op, box r),
+    NextLevel,
+};
 
 extern {
     type Location = usize;
     type Error = ();
 
     enum Token<'input> {
-        IDENTIFIER => Token::Ident(<&'input str>),
+        IDENT => Token::Ident(<&'input str>),
         NUMBER => Token::Number(<&'input str>),
         "let" => Token::Let,
         "fn" => Token::Fn,

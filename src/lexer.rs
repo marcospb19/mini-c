@@ -23,6 +23,7 @@ impl<'a> Iterator for Lexer<'a> {
         let (token, span) = self.lex.next()?;
 
         if matches!(token, Token::Invalid) {
+            // Some(Err(()))
             todo!();
         } else {
             Some(Ok((span.start, token, span.end)))

@@ -1,0 +1,10 @@
+---
+source: tests/ui.rs
+expression: test_sushi(input)
+---
+Ok(
+    OutputCapture {
+        stdout: "",
+        stderr: "",
+    },
+)
