@@ -61,9 +61,9 @@ pub enum Token<'input> {
     #[token(")")]
     CloseParenthesis,
     #[token("{")]
-    OpenBracket,
+    OpenBraces,
     #[token("}")]
-    CloseBracket,
+    CloseBraces,
     #[token("+")]
     Plus,
     #[token("-")]

@@ -1,10 +1,9 @@
 ---
 source: tests/ui.rs
-expression: test_sushi(input)
+expression: "test_sushi(\"\n    ;\n     ;;\n\").unwrap()"
 ---
-Ok(
-    OutputCapture {
-        stdout: "",
-        stderr: "",
-    },
-)
+### stdout ###
+[EMPTY]
+### stderr ###
+[EMPTY]
+

@@ -4,23 +4,36 @@
 use sushi::test_sushi;
 use unindent::unindent;
 
+macro_rules! test {
+    ($input:expr) => {
+        insta::assert_display_snapshot!(test_sushi($input).unwrap())
+    };
+}
+
 #[test]
 fn empty_statements() {
-    let input = unindent("
+    test!(unindent("
         ;
         ;;
-    ");
-    insta::assert_debug_snapshot!(test_sushi(input));
+    "));
 }
 
 #[test]
 fn empty_program() {
-    let input = "";
-    insta::assert_debug_snapshot!(test_sushi(input));
+    test!("");
 }
 
 #[test]
 fn arithmetic_expression() {
-    let input = "1 + 1 * 2 + 3 / (5 - 3);";
-    insta::assert_debug_snapshot!(test_sushi(input));
+    test!("1 + 1 * 2 + 3 / (5 - 3);");
+}
+
+#[test]
+fn missing_trailing_semi_colon() {
+    test!("1 + 1 * 2 + 3 / (5 - 3)");
+}
+
+#[test]
+fn unfinished_arithmetic_expression() {
+    test!("1 -;");
 }

@@ -31,8 +31,8 @@ Literal: Value = {
     Number,
     Boolean,
 };
-Ident: Ident = IDENT => <>.to_owned();
-Number: Value = NUMBER => Value::Number(i32::from_str(<>).unwrap());
+Ident: Ident = "{ident}" => <>.to_owned();
+Number: Value = "{int}" => Value::Number(i32::from_str(<>).unwrap());
 Boolean: Value = {
     "true" => Value::Bool(true),
     "false" => Value::Bool(false),
@@ -69,8 +69,8 @@ extern {
     type Error = ();
 
     enum Token<'input> {
-        IDENT => Token::Ident(<&'input str>),
-        NUMBER => Token::Number(<&'input str>),
+        "{ident}" => Token::Ident(<&'input str>),
+        "{int}" => Token::Number(<&'input str>),
         "let" => Token::Let,
         "fn" => Token::Fn,
         "return" => Token::Return,
@@ -82,8 +82,8 @@ extern {
         "=" => Token::SingleEquals,
         "(" => Token::OpenParenthesis,
         ")" => Token::CloseParenthesis,
-        "{" => Token::OpenBracket,
-        "}" => Token::CloseBracket,
+        "{" => Token::OpenBraces,
+        "}" => Token::CloseBraces,
         "+" => Token::Plus,
         "-" => Token::Minus,
         "*" => Token::Star,
