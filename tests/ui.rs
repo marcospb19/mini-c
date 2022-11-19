@@ -1,12 +1,12 @@
 #![feature(custom_inner_attributes)]
 #![rustfmt::skip]
 
-use sushi::test_sushi;
+use sushi::test_utils::test_sushi;
 use unindent::unindent;
 
 macro_rules! test {
     ($input:expr) => {
-        insta::assert_display_snapshot!(test_sushi($input).unwrap())
+        insta::assert_display_snapshot!(test_sushi($input))
     };
 }
 
@@ -36,4 +36,9 @@ fn missing_trailing_semi_colon() {
 #[test]
 fn unfinished_arithmetic_expression() {
     test!("1 -;");
+}
+
+#[test]
+fn undefined_variable() {
+    test!("x;");
 }

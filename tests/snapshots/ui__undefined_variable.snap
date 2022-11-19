@@ -1,0 +1,9 @@
+---
+source: tests/ui.rs
+expression: "test_sushi(\"x;\").unwrap()"
+---
+### stdout ###
+[EMPTY]
+### stderr ###
+[EMPTY]
+

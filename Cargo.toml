@@ -1,19 +1,22 @@
+[workspace]
+members = [".", "components/*"]
+
 [package]
 name = "sushi"
-version = "0.0.1"
+version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-ariadne = "0.1.5"
+sushi-parser = { path = "components/sushi-parser" }
+sushi-lexer = { path = "components/sushi-lexer" }
+sushi-ast = { path = "components/sushi-ast" }
+sushi-common = { path = "components/sushi-common" }
+sushi-interpreter = { path = "components/sushi-interpreter" }
 lalrpop-util = { version = "0.19.8", default-features = false }
-logos = "0.12.1"
 
 [dev-dependencies]
 insta = "1.21.0"
 unindent = "0.1.10"
-
-[build-dependencies]
-lalrpop = { version = "0.19.8", default-features = false }
 
 # Speed up tests
 [profile.dev.package]

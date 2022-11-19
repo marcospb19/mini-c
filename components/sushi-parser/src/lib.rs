@@ -1,6 +1,8 @@
 //! The parser is written with LALRPOP.
 
-#[allow(warnings, unused)]
+#![feature(box_syntax)]
+
+#[allow(warnings)]
 mod lalrpop_codegen {
     use lalrpop_util::lalrpop_mod;
 
@@ -8,4 +10,4 @@ mod lalrpop_codegen {
 }
 
 // Export
-pub use lalrpop_codegen::sushi_grammar::ProgramParser;
+pub use lalrpop_codegen::sushi_grammar::SushiParser;

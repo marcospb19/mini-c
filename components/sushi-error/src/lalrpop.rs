@@ -3,18 +3,14 @@ use std::{
     io::{self, Write},
 };
 
-#[allow(unused)]
-use ariadne::{Color, ColorGenerator, Config, Fmt, Label, Report, ReportKind, Source};
+use ariadne::{Color, ColorGenerator, Config, Label, Report, ReportKind};
 use lalrpop_util::ParseError;
+use sushi_common::{display_comma_separate_list, SushiConfig};
+use sushi_lexer::Token;
 
-use crate::{lexer::Token, SushiConfig};
+use crate::write_report;
 
 pub type LalrpopError<'a> = ParseError<usize, Token<'a>, ()>;
-pub type Reports = Vec<Report>;
-
-pub fn write_report(writer: impl Write, report: Report, input: &str) -> io::Result<()> {
-    report.write(Source::from(input), writer)
-}
 
 pub fn report_lalrpop_error(
     writer: impl Write,
@@ -117,16 +113,6 @@ pub fn build_report_from_lalrpop_error(
     // x.print(Source::from(include_str!("sample.tao"))).unwrap();
 
     report.finish()
-}
-
-pub enum Error<'a> {
-    Lalrpop(LalrpopError<'a>),
-}
-
-fn display_comma_separate_list(list: &[String]) -> String {
-    assert!(!list.is_empty());
-
-    list.iter().map(String::as_str).intersperse(", ").collect()
 }
 
 fn reformat_lalrpop_expected_list(error: &mut LalrpopError) {

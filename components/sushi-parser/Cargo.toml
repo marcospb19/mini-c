@@ -1,0 +1,12 @@
+[package]
+name = "sushi-parser"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+sushi-lexer = { path = "../sushi-lexer" }
+sushi-ast = { path = "../sushi-ast" }
+lalrpop-util = { version = "0.19.8", default-features = false }
+
+[build-dependencies]
+lalrpop = { version = "0.19.8", default-features = false }

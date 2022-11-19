@@ -1,10 +1,13 @@
 use std::str::FromStr;
 
-use crate::{ast::{Statement, Expression, Value, BinaryOperation, Ident}, lexer::Token};
+use sushi_ast::{
+    BinaryOperation, Expression, Ident, Statement, Value,
+};
+use sushi_lexer::Token;
 
 grammar<'input>(input: &'input str);
 
-pub Program = Statement*;
+pub Sushi = Statement*;
 
 Statement = {
     EmptyStatement,

@@ -5,13 +5,13 @@ pub type TokenWithSpan<'a> = (usize, Token<'a>, usize);
 pub type LexerError = ();
 
 pub struct Lexer<'a> {
-    lex: logos::SpannedIter<'a, Token<'a>>,
+    lexer: logos::SpannedIter<'a, Token<'a>>,
 }
 
 impl<'a> Lexer<'a> {
     pub fn new(src: &'a str) -> Self {
         Lexer {
-            lex: Token::lexer(src).spanned(),
+            lexer: Token::lexer(src).spanned(),
         }
     }
 }
@@ -20,7 +20,7 @@ impl<'a> Iterator for Lexer<'a> {
     type Item = LexerResult<'a>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        let (token, span) = self.lex.next()?;
+        let (token, span) = self.lexer.next()?;
 
         if matches!(token, Token::Invalid) {
             // Some(Err(()))
