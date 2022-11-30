@@ -13,7 +13,7 @@ macro_rules! test {
 #[test]
 fn empty_statements() {
     test!(unindent("
-        ;
+        ;  ; ;;
         ;;
     "));
 }
@@ -39,6 +39,42 @@ fn unfinished_arithmetic_expression() {
 }
 
 #[test]
+fn print_calls() {
+    test!(unindent("
+        print(1, 2, 3);
+        print(5 + 5 * 10);
+        print(true);
+        print(false);
+        print(());
+        print((), ());
+    "));
+}
+
+#[test]
+fn integer_comparisons() {
+    test!(unindent("
+        assert(1 + 2 == 3);
+        assert(1 + 2 != 4);
+        assert(1 < 2);
+        assert(not (1 < 1));
+        assert(1 <= 1);
+        assert(1 == 1);
+        assert(not (1 <= 0));
+    "));
+}
+
+#[test]
+fn store_variable_value() {
+    test!(unindent("
+        let x = 10;
+        let y = x + 10;
+        let z = y;
+        assert(z == 20);
+    "));
+}
+
+#[test]
+#[ignore = "refac em sushi-errorr deveria acontecer antes, pq do jeito que to adicionando esses erros, tá estranho"]
 fn undefined_variable() {
-    test!("x;");
+ test!("x;");
 }

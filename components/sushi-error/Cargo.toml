@@ -6,5 +6,6 @@ edition = "2021"
 [dependencies]
 sushi-lexer = { path = "../sushi-lexer" }
 sushi-common = { path = "../sushi-common" }
+sushi-ast = { path = "../sushi-ast" }
 lalrpop-util = { version = "0.19.8", default-features = false }
 ariadne = "0.1.5"

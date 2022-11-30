@@ -1,21 +1,32 @@
 #![feature(custom_inner_attributes)]
 
-use std::io;
+use std::io::{self, Write};
 
 use sushi_common::SushiConfig;
-use sushi_interpreter::environment::Environment;
+use sushi_interpreter::{Interpreter, InterpreterMode};
 
-pub fn run_sushi(input: &str) -> io::Result<()> {
+pub fn run_sushi_repl() -> io::Result<()> {
     let (mut stdout, mut stderr) = (io::stdout(), io::stderr());
 
-    let mut environment = Environment {
-        stdout: &mut stdout,
-        stderr: &mut stderr,
-        config: SushiConfig::with_colors(),
-    };
+    let mut interpreter = Interpreter::new(&mut stdout, &mut stderr, SushiConfig::with_colors());
 
-    environment.execute_file(input)?;
-    Ok(())
+    loop {
+        print!("> ");
+        io::stdout().flush()?;
+
+        let mut line = String::new();
+        let bytes = io::stdin().read_line(&mut line)?;
+
+        if bytes == 0 {
+            return Ok(());
+        }
+
+        // If errors appear, report them and keep the REPL running.
+        match interpreter.execute_file(&line, InterpreterMode::Repl) {
+            Ok(_) => {}
+            Err(err) => eprintln!("{err}"),
+        }
+    }
 }
 
 pub mod test_utils {
@@ -25,13 +36,13 @@ pub mod test_utils {
 
     pub fn test_sushi(input: impl AsRef<str>) -> OutputCapture {
         let (mut stdout, mut stderr) = (vec![], vec![]);
-        let mut environment = Environment {
-            stdout: &mut stdout,
-            stderr: &mut stderr,
-            config: SushiConfig::without_colors(),
-        };
 
-        environment.execute_file(input.as_ref()).unwrap();
+        let mut interpreter =
+            Interpreter::new(&mut stdout, &mut stderr, SushiConfig::without_colors());
+
+        interpreter
+            .execute_file(input.as_ref(), InterpreterMode::Normal)
+            .unwrap();
 
         let vec_to_string = |vec| String::from_utf8(vec).expect("Sushi output must be valid utf8");
 

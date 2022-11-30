@@ -36,7 +36,7 @@ pub enum Token<'input> {
     #[regex(r"[_a-zA-Z][a-zA-Z0-9_]*")]
     Ident(&'input str),
     #[regex(r"[0-9][0-9_]*")]
-    Number(&'input str),
+    Int(&'input str),
 
     #[token("let")]
     Let,

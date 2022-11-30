@@ -1,6 +1,6 @@
 ---
 source: tests/ui.rs
-expression: "test_sushi(\"\").unwrap()"
+expression: "test_sushi(\"\")"
 ---
 ### stdout ###
 [EMPTY]

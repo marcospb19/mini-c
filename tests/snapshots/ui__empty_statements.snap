@@ -1,6 +1,6 @@
 ---
 source: tests/ui.rs
-expression: "test_sushi(\"\n    ;\n     ;;\n\").unwrap()"
+expression: "test_sushi(unindent(\"\n        ;  ; ;;\n        ;;\n    \"))"
 ---
 ### stdout ###
 [EMPTY]

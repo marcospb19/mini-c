@@ -1,0 +1,17 @@
+---
+source: tests/ui.rs
+expression: "test_sushi(unindent(\"\n        print(1, 2, 3);\n        print(5 + 5 * 10);\n        print(true);\n        print(false);\n        print(());\n        print((), ());\n    \"))"
+---
+### stdout ###
+[EMPTY]
+### stderr ###
+Error: Failed to parse
+   ╭─[<unknown>:1:1]
+   │
+ 5 │ print(());
+   ·        ┬  
+   ·        ╰── Unexpected token
+   · 
+   · Note: Found `)`, expected one of: `{literal}`, `{ident}`, `not`, `-`, `(`.
+───╯
+

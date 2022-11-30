@@ -1,19 +1,21 @@
+mod binary_operation;
 mod lalrpop;
+mod unary_operation;
 
 use std::io::{self, Write};
 
-#[derive(Debug)]
-pub enum Error {}
+use ariadne::Source;
 
-pub type RuntimeResult<T = ()> = std::result::Result<T, RuntimeError>;
+pub use self::{
+    binary_operation::binary_operator_error,
+    lalrpop::{report_lalrpop_error, LalrpopError},
+    unary_operation::unary_operator_error,
+};
 
-#[derive(Debug)]
-pub enum RuntimeError {}
+pub type ErrorReport = ariadne::Report;
 
-use ariadne::{Report, Source};
+pub type RuntimeResult<T = ()> = std::result::Result<T, ErrorReport>;
 
-pub use self::lalrpop::*;
-
-pub fn write_report(writer: impl Write, report: Report, input: &str) -> io::Result<()> {
+pub fn write_report(writer: impl Write, report: ErrorReport, input: &str) -> io::Result<()> {
     report.write(Source::from(input), writer)
 }

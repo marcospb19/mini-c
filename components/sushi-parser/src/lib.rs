@@ -10,4 +10,4 @@ mod lalrpop_codegen {
 }
 
 // Export
-pub use lalrpop_codegen::sushi_grammar::SushiParser;
+pub use lalrpop_codegen::sushi_grammar::{ExpressionParser, SushiParser};

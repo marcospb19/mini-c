@@ -1,12 +1,12 @@
 ---
 source: tests/ui.rs
-expression: "test_sushi(\"1 + 1 * 2 + 3 / (5 - 3)\").unwrap()"
+expression: "test_sushi(\"1 + 1 * 2 + 3 / (5 - 3)\")"
 ---
 ### stdout ###
 [EMPTY]
 ### stderr ###
 Error: Failed to parse
-   ╭─[<unknown>:1:13]
+   ╭─[<unknown>:1:1]
    │
  1 │ 1 + 1 * 2 + 3 / (5 - 3)
    ·                        ┬  

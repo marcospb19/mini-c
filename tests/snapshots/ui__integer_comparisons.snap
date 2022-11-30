@@ -1,0 +1,9 @@
+---
+source: tests/ui.rs
+expression: "test_sushi(unindent(\"\n        assert(1 + 2 == 3);\n        assert(1 + 2 != 4);\n        assert(1 < 2);\n        assert(not (1 < 1));\n        assert(1 <= 1);\n        assert(1 == 1);\n        assert(not (1 <= 0));\n    \"))"
+---
+### stdout ###
+[EMPTY]
+### stderr ###
+[EMPTY]
+

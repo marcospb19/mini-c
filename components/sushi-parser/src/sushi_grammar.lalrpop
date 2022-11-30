@@ -1,71 +1,109 @@
 use std::str::FromStr;
 
 use sushi_ast::{
-    BinaryOperation, Expression, Ident, Statement, Value,
+    BinaryOperator, UnaryOperator, Expression, Ident, Span, Spanned, Statement, Value,
 };
 use sushi_lexer::Token;
 
 grammar<'input>(input: &'input str);
 
-pub Sushi = Statement*;
+pub Sushi = Spanned<Statement>*;
 
 Statement = {
     EmptyStatement,
     ExpressionStatement,
+    LetStatement,
 };
 EmptyStatement: Statement = ";" => Statement::Empty;
-ExpressionStatement: Statement = <Expression> ";" => Statement::Expression(<>);
+ExpressionStatement: Statement = <Spanned<Expression>> ";" => Statement::Expression(<>);
+LetStatement: Statement = "let" <Spanned<Ident>> "=" <Spanned<Expression>> ";" => Statement::Let(<>);
 
-Expression = {
-    Equality,
+// Chain of rules that define the precedence
+pub Expression = Equality;
+Equality = BinaryOperatorLevel<EqualityOperator, Comparison>;
+Comparison = BinaryOperatorLevel<ComparisonOperator, Term>;
+Term = BinaryOperatorLevel<TermOperator, Factor>;
+Factor = BinaryOperatorLevel<FactorOperator, Unary>;
+Unary = {
+    <op:Spanned<UnaryOperator>> <expr:Spanned<Unary>> => Expression::Unary(op, box expr),
+    Grouping,
 };
-Equality = Level<EqualityOperator, Comparison>;
-Comparison = Level<ComparisonOperator, Term>;
-Term = Level<TermOperator, Factor>;
-Factor = Level<FactorOperator, Primary>;
-Primary = {
+Grouping = {
     "(" <Expression> ")",
-    VariableExpression,
+    FunctionCall,
+};
+FunctionCall = {
+    <Spanned<Ident>> "(" <ListOf<Spanned<Expression>>> ")" => Expression::FunctionCall(<>),
+    Primary,
+};
+Primary: Expression = {
+    Spanned<Ident> => Expression::Variable(<>),
     Literal => Expression::Literal(<>),
 };
-VariableExpression: Expression = Ident => Expression::Variable(<>);
 
-Literal: Value = {
-    Number,
-    Boolean,
+
+
+
+Literal: Spanned<Value> = {
+    Spanned<Int>,
+    Spanned<Bool>,
 };
 Ident: Ident = "{ident}" => <>.to_owned();
-Number: Value = "{int}" => Value::Number(i32::from_str(<>).unwrap());
-Boolean: Value = {
+Int: Value = "{int}" => Value::Int(i32::from_str(<>).unwrap());
+Bool: Value = {
     "true" => Value::Bool(true),
     "false" => Value::Bool(false),
 };
 
-EqualityOperator: BinaryOperation = {
-    "==" => BinaryOperation::Equals,
-    "!=" => BinaryOperation::NotEquals,
+
+EqualityOperator: BinaryOperator = {
+    "==" => BinaryOperator::Equals,
+    "!=" => BinaryOperator::NotEquals,
 };
-ComparisonOperator: BinaryOperation = {
-    "<" => BinaryOperation::Less,
-    "<=" => BinaryOperation::LessOrEquals,
-    ">" => BinaryOperation::Greater,
-    ">=" => BinaryOperation::GreaterOrEquals,
+ComparisonOperator: BinaryOperator = {
+    "<" => BinaryOperator::Less,
+    "<=" => BinaryOperator::LessOrEquals,
+    ">" => BinaryOperator::Greater,
+    ">=" => BinaryOperator::GreaterOrEquals,
 };
-TermOperator: BinaryOperation = {
-    "+" => BinaryOperation::Add,
-    "-" => BinaryOperation::Subtract,
+TermOperator: BinaryOperator = {
+    "+" => BinaryOperator::Add,
+    "-" => BinaryOperator::Subtract,
 };
-FactorOperator: BinaryOperation = {
-    "*" => BinaryOperation::Multiply,
-    "/" => BinaryOperation::Divide,
+FactorOperator: BinaryOperator = {
+    "*" => BinaryOperator::Multiply,
+    "/" => BinaryOperator::Divide,
+};
+UnaryOperator: UnaryOperator = {
+    "not" => UnaryOperator::Not,
+    "-" => UnaryOperator::Minus,
 };
 
 // Macro: precedence level definition macro for binary expressions
-Level<Operator, NextLevel>: Expression = {
-    <l:Level<Operator,NextLevel>> <op:Operator> <r:NextLevel> =>
-        Expression::Binary(box l, op, box r),
+BinaryOperatorLevel<Operator, NextLevel>: Expression = {
+    <l:Spanned<BinaryOperatorLevel<Operator,NextLevel>>> <op:Spanned<Operator>> <r:Spanned<NextLevel>> => Expression::Binary(box l, op, box r),
     NextLevel,
 };
+
+
+// Comma separated list of something
+ListOf<T>: Vec<T> = {
+    <mut list:(<T> ",")*> <last_element:T?> => match last_element {
+        None => list,
+        Some(last_element) => {
+            list.push(last_element);
+            list
+        }
+    }
+};
+
+// Macro: rule with span, requires the Rule name to be the same as the type
+Spanned<Rule>: Spanned<Rule> = <l:@L> <inner:Rule> <r:@R> =>
+    Spanned {
+        inner,
+        span: Span::new(l, r)
+    };
+
 
 extern {
     type Location = usize;
@@ -73,7 +111,7 @@ extern {
 
     enum Token<'input> {
         "{ident}" => Token::Ident(<&'input str>),
-        "{int}" => Token::Number(<&'input str>),
+        "{int}" => Token::Int(<&'input str>),
         "let" => Token::Let,
         "fn" => Token::Fn,
         "return" => Token::Return,

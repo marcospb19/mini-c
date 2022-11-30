@@ -1,4 +1,8 @@
-pub mod environment;
-mod interpret;
+mod evaluate;
+mod interpreter;
 mod machine;
-mod value;
+
+pub use self::{
+    evaluate::Evaluate,
+    interpreter::{Interpreter, InterpreterMode},
+};

@@ -22,7 +22,7 @@ pub fn report_lalrpop_error(
     write_report(writer, report, input)
 }
 
-pub fn build_report_from_lalrpop_error(
+fn build_report_from_lalrpop_error(
     mut error: LalrpopError<'_>,
     input: &str,
     is_color_enabled: bool,
@@ -44,7 +44,7 @@ pub fn build_report_from_lalrpop_error(
 
     let config = Config::default().with_color(is_color_enabled);
 
-    let report = Report::build(ReportKind::Error, (), 12)
+    let report = Report::build(ReportKind::Error, (), 0)
         .with_config(config)
         .with_message("Failed to parse");
 
@@ -88,27 +88,9 @@ pub fn build_report_from_lalrpop_error(
                     .with_color(color_a),
             )
         }
-        _ => todo!(),
+        ParseError::InvalidToken { .. } | ParseError::ExtraToken { .. } => unreachable!(),
+        ParseError::User { .. } => unreachable!("We don't have custom parser errors yet"),
     };
-
-    // report.add_label(
-    //     Label::new(35..36)
-    //         .with_message(format!("This is of type {}", "Nat".fg(color_a)))
-    //         .with_color(color_a),
-    // );
-    // report.add_label(
-    //     Label::new(48..51)
-    //         .with_message(format!("This is of type {}", "Str".fg(color_b)))
-    //         .with_color(color_b),
-    // );
-    // report.add_label(
-    //     Label::new(11..48)
-    //         .with_message(format!(
-    //             "The values are outputs of this {} expression",
-    //             "match".fg(color_out),
-    //         ))
-    //         .with_color(color_out),
-    // );
 
     // x.print(Source::from(include_str!("sample.tao"))).unwrap();
 

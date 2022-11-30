@@ -1,11 +1,7 @@
-use std::io::{read_to_string, stdin};
-
-use sushi::run_sushi;
+use sushi::run_sushi_repl;
 
 fn main() {
-    let input = read_to_string(stdin()).unwrap();
-
-    run_sushi(&input).unwrap_or_else(|err| {
+    run_sushi_repl().unwrap_or_else(|err| {
         eprintln!("Error: {err}.");
         std::process::exit(1);
     });
