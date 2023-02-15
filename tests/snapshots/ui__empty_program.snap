@@ -1,9 +1,0 @@
----
-source: tests/ui.rs
-expression: "test_sushi(\"\")"
----
-### stdout ###
-[EMPTY]
-### stderr ###
-[EMPTY]
-

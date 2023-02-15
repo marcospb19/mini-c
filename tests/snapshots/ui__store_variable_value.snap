@@ -1,9 +1,0 @@
----
-source: tests/ui.rs
-expression: "test_sushi(unindent(\"\n        let x = 10;\n        let y = x + 10;\n        let z = y;\n        assert(z == 20);\n    \"))"
----
-### stdout ###
-[EMPTY]
-### stderr ###
-[EMPTY]
-

@@ -2,17 +2,17 @@
 members = [".", "components/*"]
 
 [package]
-name = "sushi"
+name = "mini-c"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-sushi-parser = { path = "components/sushi-parser" }
-sushi-lexer = { path = "components/sushi-lexer" }
-sushi-ast = { path = "components/sushi-ast" }
-sushi-common = { path = "components/sushi-common" }
-sushi-interpreter = { path = "components/sushi-interpreter" }
-lalrpop-util = { version = "0.19.8", default-features = false }
+# sushi-parser = { path = "components/sushi-parser" }
+# sushi-lexer = { path = "components/sushi-lexer" }
+# sushi-ast = { path = "components/sushi-ast" }
+# sushi-common = { path = "components/sushi-common" }
+# sushi-interpreter = { path = "components/sushi-interpreter" }
+# lalrpop-util = { version = "0.19.8", default-features = false }
 
 [dev-dependencies]
 insta = "1.21.0"

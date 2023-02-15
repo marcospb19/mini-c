@@ -1,0 +1,25 @@
+---
+source: tests/ui.rs
+expression: "unindent(r#\"\n        #include \"minicio.h\"\n\n        int max(int a, int b) {\n            if (a > b) {\n                return a;\n            } else {\n                return b;\n            }\n        }\n\n        int main() {\n            int a = getint();\n            int b = getint();\n            int maximum = max(a, b);\n\n            putint(maximum);\n            putnewline();\n\n            return 0;\n        }\n    \"#)"
+---
+#include "minicio.h"
+
+int max(int a, int b) {
+    if (a > b) {
+        return a;
+    } else {
+        return b;
+    }
+}
+
+int main() {
+    int a = getint();
+    int b = getint();
+    int maximum = max(a, b);
+
+    putint(maximum);
+    putnewline();
+
+    return 0;
+}
+
