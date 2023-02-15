@@ -33,7 +33,7 @@ impl<'a> Iterator for Lexer<'a> {
 
 #[derive(Logos, Debug, Clone, Copy)]
 pub enum Token<'input> {
-    #[regex(r"[_a-zA-Z][a-zA-Z0-9_]*")]
+    #[regex(r"[a-zA-Z][a-zA-Z0-9_]*")]
     Ident(&'input str),
     #[regex(r"[0-9][0-9_]*")]
     Int(&'input str),

@@ -1,0 +1,32 @@
+// Private 2: Coin change
+#include "minicio.h"
+
+int total;
+int quarter, dime, nickel;
+
+int main() {
+    total = 100;
+    quarter = 25;
+    dime = 10;
+    nickel = 5;
+
+    for (; total != 0;) {
+        if (total < 5)
+            break;
+        if (total > quarter - 1)
+            total = total - quarter;
+        else {
+            if (total > dime - 1)
+                total = total - dime;
+            else {
+                if (total > nickel - 1)
+                    total = total - nickel;
+            }
+        }
+    }
+
+    putint(total);
+    putnewline();
+
+    return 0;
+}
