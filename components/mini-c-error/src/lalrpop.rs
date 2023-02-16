@@ -5,8 +5,8 @@ use std::{
 
 use ariadne::{Color, ColorGenerator, Config, Label, Report, ReportKind};
 use lalrpop_util::ParseError;
-use sushi_common::{display_comma_separate_list, SushiConfig};
-use sushi_lexer::Token;
+use mini_c_common::{display_comma_separate_list, SushiConfig};
+use mini_c_lexer::Token;
 
 use crate::write_report;
 

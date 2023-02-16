@@ -1,74 +1,38 @@
-use std::fmt;
+// use std::fmt;
 
 pub type Ident = String;
 
-#[derive(Debug, Clone)]
-pub enum Statement {
-    Empty,
-    Expression(Spanned<Expression>),
-    Let(Spanned<Ident>, Spanned<Expression>),
+pub struct Program {
+    pub preamble: bool,
+    pub declarations: Vec<Declaration>,
 }
 
-pub struct Function;
-
-#[derive(Debug, Clone)]
-pub enum Expression {
-    Unary(Spanned<UnaryOperator>, Box<Spanned<Expression>>),
-    Binary(
-        Box<Spanned<Expression>>,
-        Spanned<BinaryOperator>,
-        Box<Spanned<Expression>>,
-    ),
-    Literal(Spanned<Value>),
-    Variable(Spanned<Ident>),
-    FunctionCall(Spanned<Ident>, Vec<Spanned<Expression>>),
+pub enum Declaration {
+    Variable(VariableDeclaration),
+    Function(FunctionDeclaration),
 }
 
-#[derive(Debug, Clone)]
-pub enum BinaryOperator {
-    Add,
-    Subtract,
-    Multiply,
-    Divide,
-    Equals,
-    NotEquals,
-    Less,
-    LessOrEquals,
-    Greater,
-    GreaterOrEquals,
+pub struct VariableDeclaration(pub VarType, pub Vec<Ident>);
+
+pub struct FunctionDeclaration(
+    pub ReturnType,
+    pub Ident,
+    pub Vec<Parameter>,
+    pub Option<Scope>,
+);
+
+pub struct Parameter(pub VarType, pub Ident);
+pub type Scope = ();
+
+pub enum VarType {
+    Int,
+    Bool,
 }
 
-#[derive(Debug, Clone)]
-pub enum UnaryOperator {
-    Not,
-    Minus,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum Value {
-    Int(i32),
-    Bool(bool),
-    Unit,
-}
-
-impl Value {
-    pub fn value_type_str(&self) -> &'static str {
-        match self {
-            Self::Int(_) => "{int}",
-            Self::Bool(_) => "{bool}",
-            Self::Unit => "()",
-        }
-    }
-}
-
-impl fmt::Display for Value {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            Self::Int(int) => write!(f, "{int}"),
-            Self::Bool(boolean) => write!(f, "{boolean}"),
-            Self::Unit => write!(f, "()"),
-        }
-    }
+pub enum ReturnType {
+    Void,
+    Int,
+    Bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -125,3 +89,74 @@ impl From<Span> for std::ops::Range<usize> {
         start..end
     }
 }
+
+// // // // // // // // // ---
+
+// #[derive(Debug, Clone)]
+// pub enum Statement {
+//     Empty,
+//     Expression(Spanned<Expression>),
+//     Let(Spanned<Ident>, Spanned<Expression>),
+// }
+
+// pub struct Function;
+
+// #[derive(Debug, Clone)]
+// pub enum Expression {
+//     Unary(Spanned<UnaryOperator>, Box<Spanned<Expression>>),
+//     Binary(
+//         Box<Spanned<Expression>>,
+//         Spanned<BinaryOperator>,
+//         Box<Spanned<Expression>>,
+//     ),
+//     Literal(Spanned<Value>),
+//     Variable(Spanned<Ident>),
+//     FunctionCall(Spanned<Ident>, Vec<Spanned<Expression>>),
+// }
+
+// #[derive(Debug, Clone)]
+// pub enum BinaryOperator {
+//     Add,
+//     Subtract,
+//     Multiply,
+//     Divide,
+//     Equals,
+//     NotEquals,
+//     Less,
+//     LessOrEquals,
+//     Greater,
+//     GreaterOrEquals,
+// }
+
+// #[derive(Debug, Clone)]
+// pub enum UnaryOperator {
+//     Not,
+//     Minus,
+// }
+
+// #[derive(Debug, Clone, PartialEq, Eq)]
+// pub enum Value {
+//     Int(i32),
+//     Bool(bool),
+//     Unit,
+// }
+
+// impl Value {
+//     pub fn value_type_str(&self) -> &'static str {
+//         match self {
+//             Self::Int(_) => "{int}",
+//             Self::Bool(_) => "{bool}",
+//             Self::Unit => "()",
+//         }
+//     }
+// }
+
+// impl fmt::Display for Value {
+//     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+//         match self {
+//             Self::Int(int) => write!(f, "{int}"),
+//             Self::Bool(boolean) => write!(f, "{boolean}"),
+//             Self::Unit => write!(f, "()"),
+//         }
+//     }
+// }

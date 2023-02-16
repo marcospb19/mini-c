@@ -1,5 +1,5 @@
 use ariadne::{Color, ColorGenerator, Label, Report, ReportKind};
-use sushi_ast::{Span, Spanned, Value};
+use mini_c_ast::{Span, Spanned, Value};
 
 use crate::ErrorReport;
 

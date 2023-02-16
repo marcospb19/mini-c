@@ -1,21 +1,57 @@
 use std::str::FromStr;
 
 use mini_c_ast::{
-    BinaryOperator, UnaryOperator, Expression, Ident, Span, Spanned, Statement, Value,
+    Program, Parameter, Ident, Span, Spanned, Declaration, VarType, ReturnType, VariableDeclaration, Scope, FunctionDeclaration,
 };
 use mini_c_lexer::Token;
 
+use crate::{MiniCParseError, error};
+
 grammar<'input>(input: &'input str);
 
-pub Program = Preamble? Declaration*;
+pub Program: Program =
+    <preamble:Preamble?> <declarations:Declaration*> =>
+        Program { preamble: preamble.is_some(), declarations};
 
 Preamble: () = "#include" "minicio.h" => ();
-Declaration: () = {
-    VariableDeclaration,
-    FunctionDeclaration,
+
+Declaration: Declaration = {
+    VariableDeclaration => Declaration::Variable(<>),
+    FunctionDeclaration => Declaration::Function(<>),
 };
-VariableDeclaration: () = VarType ListOf<Ident> ";";
-FunctionDeclaration: () = ReturnType Ident "(" FunctionParameters ")" Scope;
+VariableDeclaration: VariableDeclaration = <VarType> <ListOf<Ident>> ";" => VariableDeclaration(<>);
+FunctionDeclaration: FunctionDeclaration = {
+    ReturnType Ident "(" ListOf<Parameter> ")" ScopeOrSemicolon => FunctionDeclaration(<>)
+};
+
+ScopeOrSemicolon: Option<Scope> = {
+    Scope => Some(<>),
+    ";" => None,
+};
+// FunctionDeclaration: () = ReturnType Ident "(" FunctionParameters ")" Scope;
+
+Parameter: Parameter = VarType Ident => Parameter(<>);
+Scope: Scope = "{" "}" => ();
+
+VarType: VarType = {
+    "{ident}" =>? {
+        match <> {
+            "bool" => Ok(VarType::Bool),
+            "int" => Ok(VarType::Int),
+            _ => error(MiniCParseError::InvalidVarType(<>.into())),
+        }
+    },
+};
+ReturnType: ReturnType = {
+    "{ident}" =>? {
+        match <> {
+            "void" => Ok(ReturnType::Void),
+            "bool" => Ok(ReturnType::Bool),
+            "int" => Ok(ReturnType::Int),
+            _ => error(MiniCParseError::InvalidReturnType(<>.into())),
+        }
+    },
+};
 
 // Statement = {
 //     EmptyStatement,
@@ -56,7 +92,7 @@ FunctionDeclaration: () = ReturnType Ident "(" FunctionParameters ")" Scope;
 //     Spanned<Int>,
 //     Spanned<Bool>,
 // };
-// Ident: Ident = "{ident}" => <>.to_owned();
+Ident: Ident = "{ident}" => <>.to_owned();
 // Int: Value = "{int}" => Value::Int(i32::from_str(<>).unwrap());
 // Bool: Value = {
 //     "true" => Value::Bool(true),
@@ -93,7 +129,6 @@ FunctionDeclaration: () = ReturnType Ident "(" FunctionParameters ")" Scope;
 //     NextLevel,
 // };
 
-
 // Comma separated list of something
 ListOf<T>: Vec<T> = {
     <mut list:(<T> ",")*> <last_element:T?> => match last_element {
@@ -115,16 +150,16 @@ Spanned<Rule>: Spanned<Rule> = <l:@L> <inner:Rule> <r:@R> =>
 
 extern {
     type Location = usize;
-    type Error = ();
+    type Error = MiniCParseError;
 
     enum Token<'input> {
         "{ident}" => Token::Ident(<&'input str>),
-        "{int}" => Token::Int(<&'input str>),
+        // "{int}" => Token::Int(<&'input str>),
         "#include" => Token::IncludeMinicio,
         "minicio.h" => Token::MinicioHeader,
-        "return" => Token::Return,
-        "true" => Token::True,
-        "false" => Token::False,
+        // "return" => Token::Return,
+        // "true" => Token::True,
+        // "false" => Token::False,
         ";" => Token::SemiColon,
         "," => Token::Comma,
         "=" => Token::SingleEquals,
@@ -132,15 +167,15 @@ extern {
         ")" => Token::CloseParenthesis,
         "{" => Token::OpenBraces,
         "}" => Token::CloseBraces,
-        "+" => Token::Plus,
-        "-" => Token::Minus,
-        "*" => Token::Star,
-        "/" => Token::Slash,
-        "<" => Token::Less,
-        "<=" => Token::LessOrEqual,
-        "==" => Token::DoubleEquals,
-        "!=" => Token::NotEquals,
-        ">" => Token::Greater,
-        ">=" => Token::GreaterOrEqual,
+        // "+" => Token::Plus,
+        // "-" => Token::Minus,
+        // "*" => Token::Star,
+        // "/" => Token::Slash,
+        // "<" => Token::Less,
+        // "<=" => Token::LessOrEqual,
+        // "==" => Token::DoubleEquals,
+        // "!=" => Token::NotEquals,
+        // ">" => Token::Greater,
+        // ">=" => Token::GreaterOrEqual,
     }
 }

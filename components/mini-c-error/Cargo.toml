@@ -1,0 +1,11 @@
+[package]
+name = "mini-c-error"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+mini-c-lexer = { path = "../mini-c-lexer" }
+mini-c-common = { path = "../mini-c-common" }
+mini-c-ast = { path = "../mini-c-ast" }
+lalrpop-util = { version = "0.19.8", default-features = false }
+ariadne = "0.1.5"

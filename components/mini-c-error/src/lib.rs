@@ -1,16 +1,14 @@
-mod binary_operation;
+// mod unary_operation;
+// mod binary_operation;
 mod lalrpop;
-mod unary_operation;
 
 use std::io::{self, Write};
 
 use ariadne::Source;
 
-pub use self::{
-    binary_operation::binary_operator_error,
-    lalrpop::{report_lalrpop_error, LalrpopError},
-    unary_operation::unary_operator_error,
-};
+// unary_operation::unary_operator_error,
+// binary_operation::binary_operator_error,
+pub use self::lalrpop::{report_lalrpop_error, LalrpopError};
 
 pub type ErrorReport = ariadne::Report;
 
