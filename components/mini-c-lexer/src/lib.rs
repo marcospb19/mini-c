@@ -38,14 +38,12 @@ pub enum Token<'input> {
     #[regex(r"[0-9][0-9_]*")]
     Int(&'input str),
 
-    #[token("let")]
-    Let,
-    #[token("fn")]
-    Fn,
+    #[token("#include")]
+    IncludeMinicio,
+    #[token("minicio.h")]
+    MinicioHeader,
     #[token("return")]
     Return,
-    #[token("not")]
-    Not,
     #[token("true")]
     True,
     #[token("false")]

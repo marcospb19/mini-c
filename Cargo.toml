@@ -1,5 +1,10 @@
 [workspace]
-members = [".", "components/*"]
+members = [
+    ".",
+    "components/mini-c-ast",
+    "components/mini-c-lexer",
+    "components/mini-c-parser",
+]
 
 [package]
 name = "mini-c"

@@ -6,8 +6,8 @@
 mod lalrpop_codegen {
     use lalrpop_util::lalrpop_mod;
 
-    lalrpop_mod!(pub sushi_grammar);
+    lalrpop_mod!(pub mini_c_grammar);
 }
 
 // Export
-pub use lalrpop_codegen::sushi_grammar::{ExpressionParser, SushiParser};
+// pub use lalrpop_codegen::mini_c_grammar::{ExpressionParser, SushiParser};
