@@ -1,5 +1,3 @@
-// use std::fmt;
-
 pub type Ident = String;
 
 pub struct Program {
@@ -12,27 +10,79 @@ pub enum Declaration {
     Function(FunctionDeclaration),
 }
 
-pub struct VariableDeclaration(pub VarType, pub Vec<Ident>);
+pub struct VariableDeclaration(pub Type, pub Vec<VariableDeclarationItem>);
 
-pub struct FunctionDeclaration(
-    pub ReturnType,
-    pub Ident,
-    pub Vec<Parameter>,
-    pub Option<Scope>,
-);
-
-pub struct Parameter(pub VarType, pub Ident);
-pub type Scope = ();
-
-pub enum VarType {
+pub enum Type {
+    Void,
     Int,
     Bool,
 }
 
-pub enum ReturnType {
-    Void,
-    Int,
-    Bool,
+pub enum VariableDeclarationItem {
+    Normal(Ident),
+    Array(Ident, i64),
+}
+
+pub struct FunctionDeclaration(pub Type, pub Ident, pub Vec<Parameter>, pub Option<Scope>);
+
+pub struct Parameter(pub Type, pub Ident);
+
+pub struct Scope(pub Vec<VariableDeclaration>, pub Vec<Statement>);
+
+pub enum Statement {
+    If(IfStatement),
+    For(ForStatement),
+    While(WhileStatement),
+    Break,
+    Return(ReturnStatement),
+    Scope(Scope),
+}
+pub struct IfStatement(pub Expression, pub Scope, pub Option<Scope>);
+pub struct ForStatement(
+    pub (Option<Expression>, Option<Expression>, Option<Expression>),
+    pub Scope,
+);
+pub struct WhileStatement(pub Option<Expression>, pub Scope);
+pub struct ReturnStatement(pub Option<Expression>);
+
+pub enum Expression {
+    Variable(Ident),
+    Value(Value),
+    ArrayIndexing(Box<ArrayIndexingExpression>),
+    Assignment(Box<AssignmentExpression>),
+    Binary(Box<BinaryExpression>),
+    Unary(Box<UnaryExpression>),
+    FunctionCall(FunctionCallExpression),
+}
+pub struct ArrayIndexingExpression(pub Ident, pub Expression);
+pub struct AssignmentExpression(pub Ident, pub Expression);
+pub struct BinaryExpression(pub Expression, pub BinaryOperator, pub Expression);
+pub struct UnaryExpression(pub UnaryOperator, pub Expression);
+pub struct FunctionCallExpression(pub Ident, pub Vec<Expression>);
+
+pub enum Value {
+    Int(i64),
+    Bool(bool),
+}
+
+pub enum BinaryOperator {
+    Add,
+    Sub,
+    Mul,
+    Div,
+    And,
+    Or,
+    Equals,
+    NotEquals,
+    Greater,
+    GreaterOrEquals,
+    Less,
+    LessOrEquals,
+}
+
+pub enum UnaryOperator {
+    Not,
+    Negative,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

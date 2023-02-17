@@ -1,11 +1,33 @@
-use std::str::FromStr;
-
 use mini_c_ast::{
-    Program, Parameter, Ident, Span, Spanned, Declaration, VarType, ReturnType, VariableDeclaration, Scope, FunctionDeclaration,
+    FunctionCallExpression,
+    BinaryExpression,
+    UnaryExpression,
+    BinaryOperator,
+    UnaryOperator,
+    VariableDeclarationItem,
+    IfStatement,
+    ForStatement,
+    WhileStatement,
+    AssignmentExpression,
+    ArrayIndexingExpression,
+    Declaration,
+    Expression,
+    FunctionDeclaration,
+    Ident,
+    Parameter,
+    Program,
+    ReturnStatement,
+    Scope,
+    Span,
+    Spanned,
+    Statement,
+    Type,
+    Value,
+    VariableDeclaration,
 };
+use std::str::FromStr;
 use mini_c_lexer::Token;
-
-use crate::{MiniCParseError, error};
+use crate::{error, MiniCParseError};
 
 grammar<'input>(input: &'input str);
 
@@ -19,117 +41,120 @@ Declaration: Declaration = {
     VariableDeclaration => Declaration::Variable(<>),
     FunctionDeclaration => Declaration::Function(<>),
 };
-VariableDeclaration: VariableDeclaration = <VarType> <ListOf<Ident>> ";" => VariableDeclaration(<>);
+VariableDeclaration: VariableDeclaration = <Type> <ListOf<VariableDeclarationItem>> ";" => VariableDeclaration(<>);
+VariableDeclarationItem: VariableDeclarationItem = {
+    Ident => VariableDeclarationItem::Normal(<>),
+    <Ident> "[" <Int> "]" => VariableDeclarationItem::Array(<>),
+};
 FunctionDeclaration: FunctionDeclaration = {
-    ReturnType Ident "(" ListOf<Parameter> ")" ScopeOrSemicolon => FunctionDeclaration(<>)
+    <Type> <Ident> "(" <ListOf<Parameter>> ")" <ScopeOrSemicolon> => FunctionDeclaration(<>)
+};
+
+Parameter: Parameter = Type Ident => Parameter(<>);
+Scope: Scope = "{" <VariableDeclaration*> <Statement*> "}" => Scope(<>);
+
+Statement: Statement = {
+    IfStatement => Statement::If(<>),
+    ForStatement => Statement::For(<>),
+    WhileStatement => Statement::While(<>),
+    BreakStatement => Statement::Break,
+    ReturnStatement => Statement::Return(<>),
+    Scope => Statement::Scope(<>),
+};
+IfStatement: IfStatement = {
+    "if" "(" <Expression> ")" <Scope> <("else" <Scope>)?> => IfStatement(<>),
+};
+ForStatement: ForStatement = "for" "(" <(<Expression?> "," <Expression?> "," <Expression?>)> ")" <Scope> => ForStatement(<>);
+WhileStatement: WhileStatement = "while" "(" <Expression?> ")" <Scope> => WhileStatement(<>);
+BreakStatement: () = "break" ";" => ();
+ReturnStatement: ReturnStatement = "return" <Expression?> ";" => ReturnStatement(<>);
+
+Expression = ExpressionPrecedenceStart;
+// // Precedence:
+// 9. =
+// 8. ||
+// 7. &&
+// 6. !
+// 5. == != < < = > > =
+// 4. + binary -
+// 3. * /
+// 2. unary -
+// 1. 10, true, a, a[i] f()  (expr)
+ExpressionPrecedenceStart = AssignmentExpression;
+
+AssignmentExpression = {
+    <Ident> "=" <AssignmentExpression> => Expression::Assignment(box AssignmentExpression(<>)),
+    OrExpression,
+};
+OrExpression = BinaryOperationLevel<OrOperator, AndExpression>;
+AndExpression = BinaryOperationLevel<AndOperator, NotExpression>;
+NotExpression = UnaryOperationLevel<NotOperator, ComparisonExpression>;
+ComparisonExpression = BinaryOperationLevel<ComparisonOperator, TermExpression>;
+TermExpression = BinaryOperationLevel<TermOperator, FactorExpression>;
+FactorExpression = BinaryOperationLevel<FactorOperator, NegationExpression>;
+NegationExpression = UnaryOperationLevel<NegationOperator, PrimaryExpression>;
+
+PrimaryExpression: Expression = {
+    "(" <Expression> ")",
+    ValueExpression => Expression::Value(<>),
+    Ident => Expression::Variable(<>),
+    ArrayIndexingExpression => Expression::ArrayIndexing(box <>),
+    FunctionCallExpression => Expression::FunctionCall(<>),
+};
+ArrayIndexingExpression: ArrayIndexingExpression = <Ident> "[" <Expression> "]" => ArrayIndexingExpression(<>);
+FunctionCallExpression: FunctionCallExpression = <Ident> "(" <ListOf<Expression>> ")" => FunctionCallExpression(<>);
+
+OrOperator: BinaryOperator = "||" => BinaryOperator::Or;
+AndOperator: BinaryOperator = "&&" => BinaryOperator::And;
+NotOperator: UnaryOperator = "!" => UnaryOperator::Not;
+ComparisonOperator: BinaryOperator = {
+    "==" => BinaryOperator::Equals,
+    "!=" => BinaryOperator::NotEquals,
+    "<" => BinaryOperator::Less,
+    "<=" => BinaryOperator::LessOrEquals,
+    ">" => BinaryOperator::Greater,
+    ">=" => BinaryOperator::GreaterOrEquals,
+};
+TermOperator: BinaryOperator = {
+    "+" => BinaryOperator::Add,
+    "-" => BinaryOperator::Sub,
+};
+FactorOperator: BinaryOperator = {
+    "*" => BinaryOperator::Mul,
+    "/" => BinaryOperator::Div,
+};
+NegationOperator: UnaryOperator = "-" => UnaryOperator::Negative;
+
+ValueExpression: Value = {
+    Int => Value::Int(<>),
+    Bool => Value::Bool(<>),
+};
+Int: i64 = "{int}" =>? i64::from_str(<>)
+    .map_err(|err| error(MiniCParseError::InvalidInteger(<>.to_owned(), err)));
+Bool: bool = {
+    "true" => true,
+    "false" => false,
+};
+
+Type: Type = {
+    "{ident}" =>? {
+        match <> {
+            "void" => Ok(Type::Void),
+            "bool" => Ok(Type::Bool),
+            "int" => Ok(Type::Int),
+            _ => Err(error(MiniCParseError::InvalidType(<>.into()))),
+        }
+    },
 };
 
 ScopeOrSemicolon: Option<Scope> = {
     Scope => Some(<>),
     ";" => None,
 };
-// FunctionDeclaration: () = ReturnType Ident "(" FunctionParameters ")" Scope;
 
-Parameter: Parameter = VarType Ident => Parameter(<>);
-Scope: Scope = "{" "}" => ();
-
-VarType: VarType = {
-    "{ident}" =>? {
-        match <> {
-            "bool" => Ok(VarType::Bool),
-            "int" => Ok(VarType::Int),
-            _ => error(MiniCParseError::InvalidVarType(<>.into())),
-        }
-    },
-};
-ReturnType: ReturnType = {
-    "{ident}" =>? {
-        match <> {
-            "void" => Ok(ReturnType::Void),
-            "bool" => Ok(ReturnType::Bool),
-            "int" => Ok(ReturnType::Int),
-            _ => error(MiniCParseError::InvalidReturnType(<>.into())),
-        }
-    },
-};
-
-// Statement = {
-//     EmptyStatement,
-//     // ExpressionStatement,
-//     // LetStatement,
-// };
-// EmptyStatement: Statement = ";" => Statement::Empty;
-// ExpressionStatement: Statement = <Spanned<Expression>> ";" => Statement::Expression(<>);
-// LetStatement: Statement = "let" <Spanned<Ident>> "=" <Spanned<Expression>> ";" => Statement::Let(<>);
-
-// // Chain of rules that define the precedence
-// pub Expression = Equality;
-// Equality = BinaryOperatorLevel<EqualityOperator, Comparison>;
-// Comparison = BinaryOperatorLevel<ComparisonOperator, Term>;
-// Term = BinaryOperatorLevel<TermOperator, Factor>;
-// Factor = BinaryOperatorLevel<FactorOperator, Unary>;
-// Unary = {
-//     <op:Spanned<UnaryOperator>> <expr:Spanned<Unary>> => Expression::Unary(op, box expr),
-//     Grouping,
-// };
-// Grouping = {
-//     "(" <Expression> ")",
-//     FunctionCall,
-// };
-// FunctionCall = {
-//     <Spanned<Ident>> "(" <ListOf<Spanned<Expression>>> ")" => Expression::FunctionCall(<>),
-//     Primary,
-// };
-// Primary: Expression = {
-//     Spanned<Ident> => Expression::Variable(<>),
-//     Literal => Expression::Literal(<>),
-// };
-
-
-
-
-// Literal: Spanned<Value> = {
-//     Spanned<Int>,
-//     Spanned<Bool>,
-// };
 Ident: Ident = "{ident}" => <>.to_owned();
-// Int: Value = "{int}" => Value::Int(i32::from_str(<>).unwrap());
-// Bool: Value = {
-//     "true" => Value::Bool(true),
-//     "false" => Value::Bool(false),
-// };
 
-
-// EqualityOperator: BinaryOperator = {
-//     "==" => BinaryOperator::Equals,
-//     "!=" => BinaryOperator::NotEquals,
-// };
-// ComparisonOperator: BinaryOperator = {
-//     "<" => BinaryOperator::Less,
-//     "<=" => BinaryOperator::LessOrEquals,
-//     ">" => BinaryOperator::Greater,
-//     ">=" => BinaryOperator::GreaterOrEquals,
-// };
-// TermOperator: BinaryOperator = {
-//     "+" => BinaryOperator::Add,
-//     "-" => BinaryOperator::Subtract,
-// };
-// FactorOperator: BinaryOperator = {
-//     "*" => BinaryOperator::Multiply,
-//     "/" => BinaryOperator::Divide,
-// };
-// UnaryOperator: UnaryOperator = {
-//     "not" => UnaryOperator::Not,
-//     "-" => UnaryOperator::Minus,
-// };
-
-// // Macro: precedence level definition macro for binary expressions
-// BinaryOperatorLevel<Operator, NextLevel>: Expression = {
-//     <l:Spanned<BinaryOperatorLevel<Operator,NextLevel>>> <op:Spanned<Operator>> <r:Spanned<NextLevel>> => Expression::Binary(box l, op, box r),
-//     NextLevel,
-// };
-
-// Comma separated list of something
+// Macro: comma separated list of something
 ListOf<T>: Vec<T> = {
     <mut list:(<T> ",")*> <last_element:T?> => match last_element {
         None => list,
@@ -138,6 +163,18 @@ ListOf<T>: Vec<T> = {
             list
         }
     }
+};
+
+// Macro: precedence level definition macro for binary expressions
+BinaryOperationLevel<Operator, NextLevel>: Expression = {
+    BinaryOperationLevel<Operator,NextLevel> Operator NextLevel => Expression::Binary(box BinaryExpression(<>)),
+    NextLevel,
+};
+
+// Macro: precedence level definition macro for unary expressions
+UnaryOperationLevel<Operator, NextLevel>: Expression = {
+    <op:Operator> <r:UnaryOperationLevel<Operator,NextLevel>> => Expression::Unary(box UnaryExpression(<>)),
+    NextLevel,
 };
 
 // Macro: rule with span, requires the Rule name to be the same as the type
@@ -154,12 +191,17 @@ extern {
 
     enum Token<'input> {
         "{ident}" => Token::Ident(<&'input str>),
-        // "{int}" => Token::Int(<&'input str>),
+        "{int}" => Token::Int(<&'input str>),
         "#include" => Token::IncludeMinicio,
         "minicio.h" => Token::MinicioHeader,
-        // "return" => Token::Return,
-        // "true" => Token::True,
-        // "false" => Token::False,
+        "if" => Token::If,
+        "else" => Token::Else,
+        "for" => Token::For,
+        "while" => Token::While,
+        "break" => Token::Break,
+        "return" => Token::Return,
+        "true" => Token::True,
+        "false" => Token::False,
         ";" => Token::SemiColon,
         "," => Token::Comma,
         "=" => Token::SingleEquals,
@@ -167,15 +209,20 @@ extern {
         ")" => Token::CloseParenthesis,
         "{" => Token::OpenBraces,
         "}" => Token::CloseBraces,
-        // "+" => Token::Plus,
-        // "-" => Token::Minus,
-        // "*" => Token::Star,
-        // "/" => Token::Slash,
-        // "<" => Token::Less,
-        // "<=" => Token::LessOrEqual,
-        // "==" => Token::DoubleEquals,
-        // "!=" => Token::NotEquals,
-        // ">" => Token::Greater,
-        // ">=" => Token::GreaterOrEqual,
+        "[" => Token::OpenBrackets,
+        "]" => Token::CloseBrackets,
+        "+" => Token::Plus,
+        "-" => Token::Minus,
+        "*" => Token::Star,
+        "/" => Token::Slash,
+        "&&" => Token::And,
+        "||" => Token::Or,
+        "!" => Token::Not,
+        "<" => Token::Less,
+        "<=" => Token::LessOrEqual,
+        "==" => Token::DoubleEquals,
+        "!=" => Token::NotEquals,
+        ">" => Token::Greater,
+        ">=" => Token::GreaterOrEqual,
     }
 }

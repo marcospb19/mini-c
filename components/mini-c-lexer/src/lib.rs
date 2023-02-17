@@ -44,6 +44,16 @@ pub enum Token<'input> {
     MinicioHeader,
     #[token("return")]
     Return,
+    #[token("if")]
+    If,
+    #[token("else")]
+    Else,
+    #[token("for")]
+    For,
+    #[token("while")]
+    While,
+    #[token("break")]
+    Break,
     #[token("true")]
     True,
     #[token("false")]
@@ -62,6 +72,10 @@ pub enum Token<'input> {
     OpenBraces,
     #[token("}")]
     CloseBraces,
+    #[token("[")]
+    OpenBrackets,
+    #[token("]")]
+    CloseBrackets,
     #[token("+")]
     Plus,
     #[token("-")]
@@ -70,6 +84,12 @@ pub enum Token<'input> {
     Star,
     #[token("/")]
     Slash,
+    #[token("&&")]
+    And,
+    #[token("||")]
+    Or,
+    #[token("!")]
+    Not,
     #[token("<")]
     Less,
     #[token("<=")]
