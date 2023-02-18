@@ -4,10 +4,12 @@
 int i, result;
 
 int fib(int t) {
-    if (t < 1)
+    if (t < 1) {
         return 0;
-    if (t == 1)
+    }
+    if (t == 1) {
         return 1;
+    }
     return fib(t - 1) + fib(t - 2);
 }
 

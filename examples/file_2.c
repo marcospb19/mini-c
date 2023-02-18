@@ -13,9 +13,11 @@ int gcd(int a, int b) {
 }
 
 int main() {
-    int a = getint();
-    int b = getint();
-    int divisor = gcd(a, b);
+    int a, b, divisor;
+
+    a = getint();
+    b = getint();
+    divisor = gcd(a, b);
 
     putint(divisor);
     putnewline();

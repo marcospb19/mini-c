@@ -11,16 +11,18 @@ int main() {
     nickel = 5;
 
     for (; total != 0;) {
-        if (total < 5)
+        if (total < 5) {
             break;
-        if (total > quarter - 1)
+        }
+        if (total > quarter - 1) {
             total = total - quarter;
-        else {
-            if (total > dime - 1)
+        } else {
+            if (total > dime - 1) {
                 total = total - dime;
-            else {
-                if (total > nickel - 1)
+            } else {
+                if (total > nickel - 1) {
                     total = total - nickel;
+                }
             }
         }
     }

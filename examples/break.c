@@ -9,8 +9,9 @@ int main() {
     for (ii = 1; ii < 50; ii = ii + 1) {
         jj = jj + ii;
         if (ii == 20) {
-            if (ii < 21)
+            if (ii < 21) {
                 break;
+            }
             return 1;
         }
     }

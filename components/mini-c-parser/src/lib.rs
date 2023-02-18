@@ -2,20 +2,16 @@
 
 #![feature(box_syntax)]
 
+// Export
+pub use lalrpop_codegen::mini_c_grammar::*;
+// wtf
+pub use mini_c_lexer::MiniCParseError;
+
 #[allow(warnings)]
 mod lalrpop_codegen {
     use lalrpop_util::lalrpop_mod;
 
     lalrpop_mod!(pub mini_c_grammar);
-}
-
-// Export
-// pub use lalrpop_codegen::mini_c_grammar::{ExpressionParser, SushiParser};
-
-pub enum MiniCParseError {
-    // This is, arguably, not a parser error lol
-    InvalidType(String),
-    InvalidInteger(String, std::num::ParseIntError),
 }
 
 pub type LalrpopError<'a> =

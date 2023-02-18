@@ -12,10 +12,11 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-# sushi-parser = { path = "components/sushi-parser" }
-# sushi-lexer = { path = "components/sushi-lexer" }
-# sushi-ast = { path = "components/sushi-ast" }
-# sushi-common = { path = "components/sushi-common" }
+glob = "0.3.1"
+mini-c-parser = { path = "components/mini-c-parser" }
+mini-c-lexer = { path = "components/mini-c-lexer" }
+# mini-c-ast = { path = "components/mini-c-ast" }
+# mini-c-common = { path = "components/mini-c-common" }
 # sushi-interpreter = { path = "components/sushi-interpreter" }
 # lalrpop-util = { version = "0.19.8", default-features = false }
 

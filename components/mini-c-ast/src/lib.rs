@@ -1,34 +1,43 @@
 pub type Ident = String;
 
+#[derive(Debug, Clone)]
 pub struct Program {
     pub preamble: bool,
     pub declarations: Vec<Declaration>,
 }
 
+#[derive(Debug, Clone)]
 pub enum Declaration {
     Variable(VariableDeclaration),
     Function(FunctionDeclaration),
 }
 
+#[derive(Debug, Clone)]
 pub struct VariableDeclaration(pub Type, pub Vec<VariableDeclarationItem>);
 
+#[derive(Debug, Clone)]
 pub enum Type {
     Void,
     Int,
     Bool,
 }
 
+#[derive(Debug, Clone)]
 pub enum VariableDeclarationItem {
     Normal(Ident),
     Array(Ident, i64),
 }
 
+#[derive(Debug, Clone)]
 pub struct FunctionDeclaration(pub Type, pub Ident, pub Vec<Parameter>, pub Option<Scope>);
 
+#[derive(Debug, Clone)]
 pub struct Parameter(pub Type, pub Ident);
 
+#[derive(Debug, Clone)]
 pub struct Scope(pub Vec<VariableDeclaration>, pub Vec<Statement>);
 
+#[derive(Debug, Clone)]
 pub enum Statement {
     If(IfStatement),
     For(ForStatement),
@@ -36,35 +45,50 @@ pub enum Statement {
     Break,
     Return(ReturnStatement),
     Scope(Scope),
+    Expression(Expression),
 }
+#[derive(Debug, Clone)]
 pub struct IfStatement(pub Expression, pub Scope, pub Option<Scope>);
+#[derive(Debug, Clone)]
 pub struct ForStatement(
     pub (Option<Expression>, Option<Expression>, Option<Expression>),
     pub Scope,
 );
+#[derive(Debug, Clone)]
 pub struct WhileStatement(pub Option<Expression>, pub Scope);
+#[derive(Debug, Clone)]
 pub struct ReturnStatement(pub Option<Expression>);
 
+#[derive(Debug, Clone)]
 pub enum Expression {
-    Variable(Ident),
     Value(Value),
-    ArrayIndexing(Box<ArrayIndexingExpression>),
     Assignment(Box<AssignmentExpression>),
     Binary(Box<BinaryExpression>),
     Unary(Box<UnaryExpression>),
     FunctionCall(FunctionCallExpression),
+    VariableReference(Box<VariableReferenceExpression>),
 }
-pub struct ArrayIndexingExpression(pub Ident, pub Expression);
-pub struct AssignmentExpression(pub Ident, pub Expression);
+#[derive(Debug, Clone)]
+pub struct AssignmentExpression(pub VariableReferenceExpression, pub Expression);
+#[derive(Debug, Clone)]
 pub struct BinaryExpression(pub Expression, pub BinaryOperator, pub Expression);
+#[derive(Debug, Clone)]
 pub struct UnaryExpression(pub UnaryOperator, pub Expression);
+#[derive(Debug, Clone)]
 pub struct FunctionCallExpression(pub Ident, pub Vec<Expression>);
+#[derive(Debug, Clone)]
+pub enum VariableReferenceExpression {
+    Normal(Ident),
+    Array(Ident, Expression),
+}
 
+#[derive(Debug, Clone)]
 pub enum Value {
     Int(i64),
     Bool(bool),
 }
 
+#[derive(Debug, Clone)]
 pub enum BinaryOperator {
     Add,
     Sub,
@@ -80,6 +104,7 @@ pub enum BinaryOperator {
     LessOrEquals,
 }
 
+#[derive(Debug, Clone)]
 pub enum UnaryOperator {
     Not,
     Negative,

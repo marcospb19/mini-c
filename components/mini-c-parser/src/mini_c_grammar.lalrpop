@@ -1,19 +1,14 @@
 use mini_c_ast::{
-    FunctionCallExpression,
-    BinaryExpression,
-    UnaryExpression,
-    BinaryOperator,
-    UnaryOperator,
-    VariableDeclarationItem,
-    IfStatement,
-    ForStatement,
-    WhileStatement,
     AssignmentExpression,
-    ArrayIndexingExpression,
+    BinaryExpression,
+    BinaryOperator,
     Declaration,
     Expression,
+    ForStatement,
+    FunctionCallExpression,
     FunctionDeclaration,
     Ident,
+    IfStatement,
     Parameter,
     Program,
     ReturnStatement,
@@ -22,8 +17,13 @@ use mini_c_ast::{
     Spanned,
     Statement,
     Type,
+    UnaryExpression,
+    UnaryOperator,
     Value,
     VariableDeclaration,
+    VariableDeclarationItem,
+    VariableReferenceExpression,
+    WhileStatement,
 };
 use std::str::FromStr;
 use mini_c_lexer::Token;
@@ -41,7 +41,7 @@ Declaration: Declaration = {
     VariableDeclaration => Declaration::Variable(<>),
     FunctionDeclaration => Declaration::Function(<>),
 };
-VariableDeclaration: VariableDeclaration = <Type> <ListOf<VariableDeclarationItem>> ";" => VariableDeclaration(<>);
+VariableDeclaration: VariableDeclaration = <Type> <NonEmptyListOf<VariableDeclarationItem>> ";" => VariableDeclaration(<>);
 VariableDeclarationItem: VariableDeclarationItem = {
     Ident => VariableDeclarationItem::Normal(<>),
     <Ident> "[" <Int> "]" => VariableDeclarationItem::Array(<>),
@@ -60,16 +60,18 @@ Statement: Statement = {
     BreakStatement => Statement::Break,
     ReturnStatement => Statement::Return(<>),
     Scope => Statement::Scope(<>),
+    ExpressionStatement => Statement::Expression(<>),
 };
 IfStatement: IfStatement = {
     "if" "(" <Expression> ")" <Scope> <("else" <Scope>)?> => IfStatement(<>),
 };
-ForStatement: ForStatement = "for" "(" <(<Expression?> "," <Expression?> "," <Expression?>)> ")" <Scope> => ForStatement(<>);
+ForStatement: ForStatement = "for" "(" <(<Expression?> ";" <Expression?> ";" <Expression?>)> ")" <Scope> => ForStatement(<>);
 WhileStatement: WhileStatement = "while" "(" <Expression?> ")" <Scope> => WhileStatement(<>);
 BreakStatement: () = "break" ";" => ();
 ReturnStatement: ReturnStatement = "return" <Expression?> ";" => ReturnStatement(<>);
+ExpressionStatement = <Expression> ";";
 
-Expression = ExpressionPrecedenceStart;
+pub Expression = ExpressionPrecedenceStart;
 // // Precedence:
 // 9. =
 // 8. ||
@@ -83,7 +85,7 @@ Expression = ExpressionPrecedenceStart;
 ExpressionPrecedenceStart = AssignmentExpression;
 
 AssignmentExpression = {
-    <Ident> "=" <AssignmentExpression> => Expression::Assignment(box AssignmentExpression(<>)),
+    <VariableReferenceExpression> "=" <AssignmentExpression> => Expression::Assignment(box AssignmentExpression(<>)),
     OrExpression,
 };
 OrExpression = BinaryOperationLevel<OrOperator, AndExpression>;
@@ -97,12 +99,15 @@ NegationExpression = UnaryOperationLevel<NegationOperator, PrimaryExpression>;
 PrimaryExpression: Expression = {
     "(" <Expression> ")",
     ValueExpression => Expression::Value(<>),
-    Ident => Expression::Variable(<>),
-    ArrayIndexingExpression => Expression::ArrayIndexing(box <>),
     FunctionCallExpression => Expression::FunctionCall(<>),
+    VariableReferenceExpression => Expression::VariableReference(box <>),
 };
-ArrayIndexingExpression: ArrayIndexingExpression = <Ident> "[" <Expression> "]" => ArrayIndexingExpression(<>);
 FunctionCallExpression: FunctionCallExpression = <Ident> "(" <ListOf<Expression>> ")" => FunctionCallExpression(<>);
+VariableReferenceExpression: VariableReferenceExpression = {
+    Ident => VariableReferenceExpression::Normal(<>),
+    <Ident> "[" <Expression> "]" => VariableReferenceExpression::Array(<>),
+};
+
 
 OrOperator: BinaryOperator = "||" => BinaryOperator::Or;
 AndOperator: BinaryOperator = "&&" => BinaryOperator::And;
@@ -164,6 +169,13 @@ ListOf<T>: Vec<T> = {
         }
     }
 };
+NonEmptyListOf<T>: Vec<T> = {
+    <mut list:(<T> ",")*> <last_element:T> ","? => {
+        list.push(last_element);
+        list
+    }
+};
+
 
 // Macro: precedence level definition macro for binary expressions
 BinaryOperationLevel<Operator, NextLevel>: Expression = {

@@ -2,16 +2,27 @@ use logos::Logos;
 
 pub type LexerResult<'a> = std::result::Result<TokenWithSpan<'a>, LexerError>;
 pub type TokenWithSpan<'a> = (usize, Token<'a>, usize);
-pub type LexerError = ();
+pub type LexerError = MiniCParseError;
+
+// This shouldn't be here.
+#[derive(Debug, Clone)]
+pub enum MiniCParseError {
+    // This is, arguably, not a parser error lol
+    InvalidToken(String, std::ops::Range<usize>),
+    InvalidType(String),
+    InvalidInteger(String, std::num::ParseIntError),
+}
 
 pub struct Lexer<'a> {
     lexer: logos::SpannedIter<'a, Token<'a>>,
+    source: &'a str,
 }
 
 impl<'a> Lexer<'a> {
-    pub fn new(src: &'a str) -> Self {
+    pub fn new(source: &'a str) -> Self {
         Lexer {
-            lexer: Token::lexer(src).spanned(),
+            lexer: Token::lexer(source).spanned(),
+            source,
         }
     }
 }
@@ -20,14 +31,16 @@ impl<'a> Iterator for Lexer<'a> {
     type Item = LexerResult<'a>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        let (token, span) = self.lexer.next()?;
-
-        if matches!(token, Token::Invalid) {
-            // Some(Err(()))
-            todo!();
-        } else {
-            Some(Ok((span.start, token, span.end)))
-        }
+        self.lexer.next().map(|(token, span)| {
+            if let Token::Invalid = token {
+                Err(MiniCParseError::InvalidToken(
+                    self.source[span.clone()].to_owned(),
+                    span,
+                ))
+            } else {
+                Ok((span.start, token, span.end))
+            }
+        })
     }
 }
 
@@ -40,7 +53,7 @@ pub enum Token<'input> {
 
     #[token("#include")]
     IncludeMinicio,
-    #[token("minicio.h")]
+    #[token(r#""minicio.h""#)]
     MinicioHeader,
     #[token("return")]
     Return,

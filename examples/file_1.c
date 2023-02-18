@@ -9,9 +9,11 @@ int max(int a, int b) {
 }
 
 int main() {
-    int a = getint();
-    int b = getint();
-    int maximum = max(a, b);
+    int a, b, maximum;
+
+    a = getint();
+    b = getint();
+    maximum = max(a, b);
 
     putint(maximum);
     putnewline();
