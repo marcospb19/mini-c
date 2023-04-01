@@ -1,0 +1,30 @@
+---
+source: tests/ui.rs
+expression: test_mini_c(file_contents)
+---
+Program(
+  preamble: true,
+  declarations: [
+    Function(FunctionDeclaration(Int, "main", [], Some(Scope([
+      VariableDeclaration(Int, [
+        Normal("ii"),
+      ]),
+      VariableDeclaration(Int, [
+        Normal("jj"),
+      ]),
+    ], [
+      Expression(Assignment(AssignmentExpression(Normal("ii"), Value(Int(0))))),
+      Expression(Assignment(AssignmentExpression(Normal("jj"), Value(Int(0))))),
+      For(ForStatement((Some(Assignment(AssignmentExpression(Normal("ii"), Value(Int(1))))), Some(Binary(BinaryExpression(VariableReference(Normal("ii")), Less, Value(Int(50))))), Some(Assignment(AssignmentExpression(Normal("ii"), Binary(BinaryExpression(VariableReference(Normal("ii")), Add, Value(Int(1)))))))), Scope([], [
+        Expression(Assignment(AssignmentExpression(Normal("jj"), Binary(BinaryExpression(VariableReference(Normal("jj")), Add, VariableReference(Normal("ii"))))))),
+        If(IfStatement(Binary(BinaryExpression(VariableReference(Normal("ii")), Equals, Value(Int(20)))), Scope([], [
+          If(IfStatement(Binary(BinaryExpression(VariableReference(Normal("ii")), Less, Value(Int(21)))), Scope([], [
+            Break,
+          ]), None)),
+          Return(ReturnStatement(Some(Value(Int(1))))),
+        ]), None)),
+      ]))),
+      Return(ReturnStatement(Some(Value(Int(0))))),
+    ])))),
+  ],
+)

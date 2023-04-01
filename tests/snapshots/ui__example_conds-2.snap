@@ -1,0 +1,40 @@
+---
+source: tests/ui.rs
+expression: test_mini_c(file_contents)
+---
+Program(
+  preamble: true,
+  declarations: [
+    Function(FunctionDeclaration(Bool, "isTen", [
+      Parameter(Int, "a"),
+    ], Some(Scope([], [
+      If(IfStatement(Binary(BinaryExpression(VariableReference(Normal("a")), NotEquals, Value(Int(10)))), Scope([], [
+        Return(ReturnStatement(Some(Value(Bool(false))))),
+      ]), None)),
+      Return(ReturnStatement(Some(Value(Bool(true))))),
+    ])))),
+    Function(FunctionDeclaration(Int, "main", [], Some(Scope([
+      VariableDeclaration(Int, [
+        Normal("myScore"),
+        Normal("yourScore"),
+      ]),
+    ], [
+      Expression(Assignment(AssignmentExpression(Normal("myScore"), Value(Int(10))))),
+      Expression(Assignment(AssignmentExpression(Normal("yourScore"), Unary(UnaryExpression(Negative, Value(Int(10))))))),
+      If(IfStatement(Binary(BinaryExpression(FunctionCall(FunctionCallExpression("isTen", [
+        VariableReference(Normal("myScore")),
+      ])), And, FunctionCall(FunctionCallExpression("isTen", [
+        VariableReference(Normal("yourScore")),
+      ])))), Scope([], [
+        Expression(FunctionCall(FunctionCallExpression("putint", [
+          Value(Int(1)),
+        ]))),
+        Return(ReturnStatement(Some(Value(Int(1))))),
+      ]), None)),
+      Expression(FunctionCall(FunctionCallExpression("putint", [
+        Value(Int(0)),
+      ]))),
+      Return(ReturnStatement(Some(Value(Int(0))))),
+    ])))),
+  ],
+)

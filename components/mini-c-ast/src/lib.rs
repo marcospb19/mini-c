@@ -1,43 +1,45 @@
+use serde::Serialize;
+
 pub type Ident = String;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct Program {
     pub preamble: bool,
     pub declarations: Vec<Declaration>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub enum Declaration {
     Variable(VariableDeclaration),
     Function(FunctionDeclaration),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct VariableDeclaration(pub Type, pub Vec<VariableDeclarationItem>);
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub enum Type {
     Void,
     Int,
     Bool,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub enum VariableDeclarationItem {
     Normal(Ident),
     Array(Ident, i64),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct FunctionDeclaration(pub Type, pub Ident, pub Vec<Parameter>, pub Option<Scope>);
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct Parameter(pub Type, pub Ident);
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct Scope(pub Vec<VariableDeclaration>, pub Vec<Statement>);
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub enum Statement {
     If(IfStatement),
     For(ForStatement),
@@ -47,19 +49,19 @@ pub enum Statement {
     Scope(Scope),
     Expression(Expression),
 }
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct IfStatement(pub Expression, pub Scope, pub Option<Scope>);
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct ForStatement(
     pub (Option<Expression>, Option<Expression>, Option<Expression>),
     pub Scope,
 );
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct WhileStatement(pub Option<Expression>, pub Scope);
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct ReturnStatement(pub Option<Expression>);
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub enum Expression {
     Value(Value),
     Assignment(Box<AssignmentExpression>),
@@ -68,27 +70,27 @@ pub enum Expression {
     FunctionCall(FunctionCallExpression),
     VariableReference(Box<VariableReferenceExpression>),
 }
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct AssignmentExpression(pub VariableReferenceExpression, pub Expression);
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct BinaryExpression(pub Expression, pub BinaryOperator, pub Expression);
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct UnaryExpression(pub UnaryOperator, pub Expression);
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct FunctionCallExpression(pub Ident, pub Vec<Expression>);
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub enum VariableReferenceExpression {
     Normal(Ident),
     Array(Ident, Expression),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub enum Value {
     Int(i64),
     Bool(bool),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub enum BinaryOperator {
     Add,
     Sub,
@@ -104,7 +106,7 @@ pub enum BinaryOperator {
     LessOrEquals,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub enum UnaryOperator {
     Not,
     Negative,
@@ -164,74 +166,3 @@ impl From<Span> for std::ops::Range<usize> {
         start..end
     }
 }
-
-// // // // // // // // // ---
-
-// #[derive(Debug, Clone)]
-// pub enum Statement {
-//     Empty,
-//     Expression(Spanned<Expression>),
-//     Let(Spanned<Ident>, Spanned<Expression>),
-// }
-
-// pub struct Function;
-
-// #[derive(Debug, Clone)]
-// pub enum Expression {
-//     Unary(Spanned<UnaryOperator>, Box<Spanned<Expression>>),
-//     Binary(
-//         Box<Spanned<Expression>>,
-//         Spanned<BinaryOperator>,
-//         Box<Spanned<Expression>>,
-//     ),
-//     Literal(Spanned<Value>),
-//     Variable(Spanned<Ident>),
-//     FunctionCall(Spanned<Ident>, Vec<Spanned<Expression>>),
-// }
-
-// #[derive(Debug, Clone)]
-// pub enum BinaryOperator {
-//     Add,
-//     Subtract,
-//     Multiply,
-//     Divide,
-//     Equals,
-//     NotEquals,
-//     Less,
-//     LessOrEquals,
-//     Greater,
-//     GreaterOrEquals,
-// }
-
-// #[derive(Debug, Clone)]
-// pub enum UnaryOperator {
-//     Not,
-//     Minus,
-// }
-
-// #[derive(Debug, Clone, PartialEq, Eq)]
-// pub enum Value {
-//     Int(i32),
-//     Bool(bool),
-//     Unit,
-// }
-
-// impl Value {
-//     pub fn value_type_str(&self) -> &'static str {
-//         match self {
-//             Self::Int(_) => "{int}",
-//             Self::Bool(_) => "{bool}",
-//             Self::Unit => "()",
-//         }
-//     }
-// }
-
-// impl fmt::Display for Value {
-//     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-//         match self {
-//             Self::Int(int) => write!(f, "{int}"),
-//             Self::Bool(boolean) => write!(f, "{boolean}"),
-//             Self::Unit => write!(f, "()"),
-//         }
-//     }
-// }

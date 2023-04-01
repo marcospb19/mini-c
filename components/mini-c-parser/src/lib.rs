@@ -4,7 +4,7 @@
 
 // Export
 pub use lalrpop_codegen::mini_c_grammar::*;
-// wtf
+// wtf, why this here
 pub use mini_c_lexer::MiniCParseError;
 
 #[allow(warnings)]

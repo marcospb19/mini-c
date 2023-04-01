@@ -1,0 +1,116 @@
+---
+source: tests/ui.rs
+expression: test_mini_c(file_contents)
+---
+Program(
+  preamble: true,
+  declarations: [
+    Variable(VariableDeclaration(Int, [
+      Normal("N"),
+    ])),
+    Variable(VariableDeclaration(Int, [
+      Array("a", 20),
+      Array("c", 400),
+    ])),
+    Function(FunctionDeclaration(Void, "markcolumn", [
+      Parameter(Int, "x"),
+      Parameter(Int, "y"),
+      Parameter(Int, "mark"),
+    ], Some(Scope([
+      VariableDeclaration(Int, [
+        Normal("i"),
+      ]),
+    ], [
+      For(ForStatement((Some(Assignment(AssignmentExpression(Normal("i"), Value(Int(0))))), Some(Binary(BinaryExpression(VariableReference(Normal("i")), Less, VariableReference(Normal("N"))))), Some(Assignment(AssignmentExpression(Normal("i"), Binary(BinaryExpression(VariableReference(Normal("i")), Add, Value(Int(1)))))))), Scope([], [
+        Expression(Assignment(AssignmentExpression(Array("c", Binary(BinaryExpression(Binary(BinaryExpression(VariableReference(Normal("i")), Mul, VariableReference(Normal("N")))), Add, VariableReference(Normal("y"))))), Binary(BinaryExpression(VariableReference(Array("c", Binary(BinaryExpression(Binary(BinaryExpression(VariableReference(Normal("i")), Mul, VariableReference(Normal("N")))), Add, VariableReference(Normal("y")))))), Add, VariableReference(Normal("mark"))))))),
+      ]))),
+    ])))),
+    Function(FunctionDeclaration(Void, "markdiag", [
+      Parameter(Int, "x"),
+      Parameter(Int, "y"),
+      Parameter(Int, "mark"),
+    ], Some(Scope([
+      VariableDeclaration(Int, [
+        Normal("i"),
+      ]),
+    ], [
+      For(ForStatement((Some(Assignment(AssignmentExpression(Normal("i"), Value(Int(0))))), Some(Binary(BinaryExpression(VariableReference(Normal("i")), Less, VariableReference(Normal("N"))))), Some(Assignment(AssignmentExpression(Normal("i"), Binary(BinaryExpression(VariableReference(Normal("i")), Add, Value(Int(1)))))))), Scope([
+        VariableDeclaration(Int, [
+          Normal("x1"),
+        ]),
+        VariableDeclaration(Int, [
+          Normal("y1"),
+        ]),
+      ], [
+        Expression(Assignment(AssignmentExpression(Normal("x1"), VariableReference(Normal("i"))))),
+        Expression(Assignment(AssignmentExpression(Normal("y1"), Binary(BinaryExpression(VariableReference(Normal("y")), Add, Binary(BinaryExpression(VariableReference(Normal("i")), Sub, VariableReference(Normal("x"))))))))),
+        If(IfStatement(Binary(BinaryExpression(Binary(BinaryExpression(VariableReference(Normal("y1")), GreaterOrEquals, Value(Int(0)))), And, Binary(BinaryExpression(VariableReference(Normal("y1")), Less, VariableReference(Normal("N")))))), Scope([], [
+          Expression(Assignment(AssignmentExpression(Array("c", Binary(BinaryExpression(Binary(BinaryExpression(VariableReference(Normal("x1")), Mul, VariableReference(Normal("N")))), Add, VariableReference(Normal("y1"))))), Binary(BinaryExpression(VariableReference(Array("c", Binary(BinaryExpression(Binary(BinaryExpression(VariableReference(Normal("x1")), Mul, VariableReference(Normal("N")))), Add, VariableReference(Normal("y1")))))), Add, VariableReference(Normal("mark"))))))),
+        ]), None)),
+        Expression(Assignment(AssignmentExpression(Normal("y1"), Binary(BinaryExpression(VariableReference(Normal("y")), Sub, Binary(BinaryExpression(VariableReference(Normal("i")), Sub, VariableReference(Normal("x"))))))))),
+        If(IfStatement(Binary(BinaryExpression(Binary(BinaryExpression(VariableReference(Normal("y1")), GreaterOrEquals, Value(Int(0)))), And, Binary(BinaryExpression(VariableReference(Normal("y1")), Less, VariableReference(Normal("N")))))), Scope([], [
+          Expression(Assignment(AssignmentExpression(Array("c", Binary(BinaryExpression(Binary(BinaryExpression(VariableReference(Normal("x1")), Mul, VariableReference(Normal("N")))), Add, VariableReference(Normal("y1"))))), Binary(BinaryExpression(VariableReference(Array("c", Binary(BinaryExpression(Binary(BinaryExpression(VariableReference(Normal("x1")), Mul, VariableReference(Normal("N")))), Add, VariableReference(Normal("y1")))))), Add, VariableReference(Normal("mark"))))))),
+        ]), None)),
+      ]))),
+    ])))),
+    Function(FunctionDeclaration(Void, "search", [
+      Parameter(Int, "k"),
+    ], Some(Scope([
+      VariableDeclaration(Int, [
+        Normal("i"),
+      ]),
+    ], [
+      If(IfStatement(Binary(BinaryExpression(VariableReference(Normal("k")), Equals, VariableReference(Normal("N")))), Scope([], [
+        For(ForStatement((Some(Assignment(AssignmentExpression(Normal("i"), Value(Int(0))))), Some(Binary(BinaryExpression(VariableReference(Normal("i")), Less, VariableReference(Normal("N"))))), Some(Assignment(AssignmentExpression(Normal("i"), Binary(BinaryExpression(VariableReference(Normal("i")), Add, Value(Int(1)))))))), Scope([], [
+          Expression(FunctionCall(FunctionCallExpression("putint", [
+            VariableReference(Array("a", VariableReference(Normal("i")))),
+          ]))),
+        ]))),
+        Expression(FunctionCall(FunctionCallExpression("putnewline", []))),
+        Return(ReturnStatement(None)),
+      ]), None)),
+      For(ForStatement((Some(Assignment(AssignmentExpression(Normal("i"), Value(Int(0))))), Some(Binary(BinaryExpression(VariableReference(Normal("i")), Less, VariableReference(Normal("N"))))), Some(Assignment(AssignmentExpression(Normal("i"), Binary(BinaryExpression(VariableReference(Normal("i")), Add, Value(Int(1)))))))), Scope([], [
+        If(IfStatement(Binary(BinaryExpression(VariableReference(Array("c", Binary(BinaryExpression(Binary(BinaryExpression(VariableReference(Normal("k")), Mul, VariableReference(Normal("N")))), Add, VariableReference(Normal("i")))))), Equals, Value(Int(0)))), Scope([], [
+          Expression(FunctionCall(FunctionCallExpression("markcolumn", [
+            VariableReference(Normal("k")),
+            VariableReference(Normal("i")),
+            Value(Int(1)),
+          ]))),
+          Expression(FunctionCall(FunctionCallExpression("markdiag", [
+            VariableReference(Normal("k")),
+            VariableReference(Normal("i")),
+            Value(Int(1)),
+          ]))),
+          Expression(Assignment(AssignmentExpression(Array("a", VariableReference(Normal("k"))), VariableReference(Normal("i"))))),
+          Expression(FunctionCall(FunctionCallExpression("search", [
+            Binary(BinaryExpression(VariableReference(Normal("k")), Add, Value(Int(1)))),
+          ]))),
+          Expression(FunctionCall(FunctionCallExpression("markdiag", [
+            VariableReference(Normal("k")),
+            VariableReference(Normal("i")),
+            Unary(UnaryExpression(Negative, Value(Int(1)))),
+          ]))),
+          Expression(FunctionCall(FunctionCallExpression("markcolumn", [
+            VariableReference(Normal("k")),
+            VariableReference(Normal("i")),
+            Unary(UnaryExpression(Negative, Value(Int(1)))),
+          ]))),
+        ]), None)),
+      ]))),
+    ])))),
+    Function(FunctionDeclaration(Int, "main", [], Some(Scope([
+      VariableDeclaration(Int, [
+        Normal("i"),
+      ]),
+    ], [
+      Expression(Assignment(AssignmentExpression(Normal("N"), FunctionCall(FunctionCallExpression("getint", []))))),
+      For(ForStatement((Some(Assignment(AssignmentExpression(Normal("i"), Value(Int(0))))), Some(Binary(BinaryExpression(VariableReference(Normal("i")), Less, Binary(BinaryExpression(VariableReference(Normal("N")), Mul, VariableReference(Normal("N"))))))), Some(Assignment(AssignmentExpression(Normal("i"), Binary(BinaryExpression(VariableReference(Normal("i")), Add, Value(Int(1)))))))), Scope([], [
+        Expression(Assignment(AssignmentExpression(Array("c", VariableReference(Normal("i"))), Value(Int(0))))),
+      ]))),
+      Expression(FunctionCall(FunctionCallExpression("search", [
+        Value(Int(0)),
+      ]))),
+      Return(ReturnStatement(Some(Value(Int(0))))),
+    ])))),
+  ],
+)

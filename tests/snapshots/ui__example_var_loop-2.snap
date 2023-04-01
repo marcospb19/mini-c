@@ -1,0 +1,22 @@
+---
+source: tests/ui.rs
+expression: test_mini_c(file_contents)
+---
+Program(
+  preamble: false,
+  declarations: [
+    Variable(VariableDeclaration(Int, [
+      Normal("x"),
+    ])),
+    Variable(VariableDeclaration(Int, [
+      Array("arr", 10),
+    ])),
+    Function(FunctionDeclaration(Int, "main", [], Some(Scope([], [
+      Expression(Assignment(AssignmentExpression(Normal("x"), Value(Int(5))))),
+      For(ForStatement((Some(Assignment(AssignmentExpression(Normal("x"), Value(Int(0))))), Some(Binary(BinaryExpression(VariableReference(Normal("x")), Less, Value(Int(10))))), Some(Assignment(AssignmentExpression(Normal("x"), Binary(BinaryExpression(VariableReference(Normal("x")), Add, Value(Int(1)))))))), Scope([], [
+        Expression(Assignment(AssignmentExpression(Array("arr", VariableReference(Normal("x"))), VariableReference(Normal("x"))))),
+      ]))),
+      Return(ReturnStatement(Some(Value(Int(0))))),
+    ])))),
+  ],
+)

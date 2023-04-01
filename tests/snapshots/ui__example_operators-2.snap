@@ -1,0 +1,98 @@
+---
+source: tests/ui.rs
+expression: test_mini_c(file_contents)
+---
+Program(
+  preamble: true,
+  declarations: [
+    Function(FunctionDeclaration(Int, "main", [], Some(Scope([
+      VariableDeclaration(Int, [
+        Normal("a"),
+      ]),
+    ], [
+      Expression(Assignment(AssignmentExpression(Normal("a"), Value(Int(59))))),
+      If(IfStatement(Binary(BinaryExpression(VariableReference(Normal("a")), Equals, Value(Int(59)))), Scope([], [
+        Expression(FunctionCall(FunctionCallExpression("putint", [
+          Value(Int(1)),
+        ]))),
+      ]), Some(Scope([], [
+        Expression(FunctionCall(FunctionCallExpression("putint", [
+          Unary(UnaryExpression(Negative, Value(Int(1)))),
+        ]))),
+      ])))),
+      If(IfStatement(Binary(BinaryExpression(Unary(UnaryExpression(Negative, VariableReference(Normal("a")))), Equals, Unary(UnaryExpression(Negative, Value(Int(59)))))), Scope([], [
+        Expression(FunctionCall(FunctionCallExpression("putint", [
+          Value(Int(2)),
+        ]))),
+      ]), Some(Scope([], [
+        Expression(FunctionCall(FunctionCallExpression("putint", [
+          Unary(UnaryExpression(Negative, Value(Int(2)))),
+        ]))),
+      ])))),
+      If(IfStatement(Binary(BinaryExpression(Binary(BinaryExpression(Binary(BinaryExpression(Binary(BinaryExpression(VariableReference(Normal("a")), Add, Value(Int(1)))), Add, Value(Int(2)))), Sub, Value(Int(1)))), NotEquals, Value(Int(61)))), Scope([], [
+        Expression(FunctionCall(FunctionCallExpression("putint", [
+          Unary(UnaryExpression(Negative, Value(Int(3)))),
+        ]))),
+      ]), Some(Scope([], [
+        Expression(FunctionCall(FunctionCallExpression("putint", [
+          Value(Int(3)),
+        ]))),
+      ])))),
+      If(IfStatement(Unary(UnaryExpression(Not, Binary(BinaryExpression(Binary(BinaryExpression(Binary(BinaryExpression(Binary(BinaryExpression(VariableReference(Normal("a")), Mul, Value(Int(10)))), Mul, Value(Int(10)))), Div, Value(Int(20)))), Equals, Binary(BinaryExpression(Value(Int(59)), Mul, Value(Int(5)))))))), Scope([], [
+        Expression(FunctionCall(FunctionCallExpression("putint", [
+          Unary(UnaryExpression(Negative, Value(Int(4)))),
+        ]))),
+      ]), Some(Scope([], [
+        Expression(FunctionCall(FunctionCallExpression("putint", [
+          Value(Int(4)),
+        ]))),
+      ])))),
+      If(IfStatement(Binary(BinaryExpression(Binary(BinaryExpression(Value(Bool(true)), And, Value(Bool(false)))), And, Value(Bool(false)))), Scope([], [
+        Expression(FunctionCall(FunctionCallExpression("putint", [
+          Unary(UnaryExpression(Negative, Value(Int(5)))),
+        ]))),
+      ]), Some(Scope([], [
+        Expression(FunctionCall(FunctionCallExpression("putint", [
+          Value(Int(5)),
+        ]))),
+      ])))),
+      If(IfStatement(Binary(BinaryExpression(Binary(BinaryExpression(Value(Bool(false)), Or, Value(Bool(true)))), Or, Value(Bool(false)))), Scope([], [
+        Expression(FunctionCall(FunctionCallExpression("putint", [
+          Value(Int(6)),
+        ]))),
+      ]), Some(Scope([], [
+        Expression(FunctionCall(FunctionCallExpression("putint", [
+          Unary(UnaryExpression(Negative, Value(Int(6)))),
+        ]))),
+      ])))),
+      If(IfStatement(Binary(BinaryExpression(Binary(BinaryExpression(Binary(BinaryExpression(Value(Int(9)), Less, Value(Int(10)))), And, Binary(BinaryExpression(Value(Int(9)), Greater, Value(Int(10)))))), And, Binary(BinaryExpression(Value(Int(9)), Equals, Value(Int(9)))))), Scope([], [
+        Expression(FunctionCall(FunctionCallExpression("putint", [
+          Value(Int(7)),
+        ]))),
+      ]), Some(Scope([], [
+        Expression(FunctionCall(FunctionCallExpression("putint", [
+          Unary(UnaryExpression(Negative, Value(Int(7)))),
+        ]))),
+      ])))),
+      If(IfStatement(Binary(BinaryExpression(Binary(BinaryExpression(Binary(BinaryExpression(Value(Int(10)), Greater, Value(Int(9)))), And, Binary(BinaryExpression(Value(Int(10)), Less, Value(Int(9)))))), And, Binary(BinaryExpression(Value(Int(9)), Equals, Value(Int(9)))))), Scope([], [
+        Expression(FunctionCall(FunctionCallExpression("putint", [
+          Value(Int(8)),
+        ]))),
+      ]), Some(Scope([], [
+        Expression(FunctionCall(FunctionCallExpression("putint", [
+          Unary(UnaryExpression(Negative, Value(Int(8)))),
+        ]))),
+      ])))),
+      If(IfStatement(Unary(UnaryExpression(Not, Binary(BinaryExpression(Value(Int(10)), NotEquals, Value(Int(10)))))), Scope([], [
+        Expression(FunctionCall(FunctionCallExpression("putint", [
+          Value(Int(9)),
+        ]))),
+      ]), Some(Scope([], [
+        Expression(FunctionCall(FunctionCallExpression("putint", [
+          Unary(UnaryExpression(Negative, Value(Int(9)))),
+        ]))),
+      ])))),
+      Return(ReturnStatement(Some(Value(Int(0))))),
+    ])))),
+  ],
+)

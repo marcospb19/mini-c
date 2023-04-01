@@ -1,5 +1,8 @@
-// Private: Check if stmt stmt on if statement fails
-// Actually I fixed this file to not fail
+---
+source: tests/ui.rs
+expression: file_contents
+---
+// Private: Check if stmt on if statement passes
 #include "minicio.h"
 
 int main() {
@@ -10,8 +13,9 @@ int main() {
         putint(i + 1);
         putint(i + 10);
     } else {
-        putint(i + 10);
+        putint(i + 100);
     }
 
     return 0;
 }
+

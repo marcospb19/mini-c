@@ -1,0 +1,23 @@
+---
+source: tests/ui.rs
+expression: test_mini_c(file_contents)
+---
+Program(
+  preamble: false,
+  declarations: [
+    Variable(VariableDeclaration(Int, [
+      Normal("alice"),
+      Normal("bob"),
+      Normal("charlie"),
+    ])),
+    Variable(VariableDeclaration(Bool, [
+      Normal("zeta"),
+    ])),
+    Function(FunctionDeclaration(Void, "main", [], Some(Scope([], [
+      Expression(Assignment(AssignmentExpression(Normal("alice"), Value(Int(1))))),
+      Expression(Assignment(AssignmentExpression(Normal("bob"), Value(Int(2))))),
+      Expression(Assignment(AssignmentExpression(Normal("charlie"), Value(Int(3))))),
+      Expression(Assignment(AssignmentExpression(Normal("zeta"), Value(Bool(false))))),
+    ])))),
+  ],
+)

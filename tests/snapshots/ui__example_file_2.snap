@@ -1,0 +1,31 @@
+---
+source: tests/ui.rs
+expression: file_contents
+---
+#include "minicio.h"
+
+int mod(int a, int b) {
+    return a - (a / b) * b;
+}
+
+int gcd(int a, int b) {
+    if (b == 0) {
+        return a;
+    } else {
+        return gcd(b, mod(a, b));
+    }
+}
+
+int main() {
+    int a, b, divisor;
+
+    a = getint();
+    b = getint();
+    divisor = gcd(a, b);
+
+    putint(divisor);
+    putnewline();
+
+    return 0;
+}
+

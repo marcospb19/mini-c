@@ -1,0 +1,38 @@
+---
+source: tests/ui.rs
+expression: test_mini_c(file_contents)
+---
+Program(
+  preamble: true,
+  declarations: [
+    Variable(VariableDeclaration(Int, [
+      Normal("i"),
+      Normal("result"),
+    ])),
+    Function(FunctionDeclaration(Int, "fib", [
+      Parameter(Int, "t"),
+    ], Some(Scope([], [
+      If(IfStatement(Binary(BinaryExpression(VariableReference(Normal("t")), Less, Value(Int(1)))), Scope([], [
+        Return(ReturnStatement(Some(Value(Int(0))))),
+      ]), None)),
+      If(IfStatement(Binary(BinaryExpression(VariableReference(Normal("t")), Equals, Value(Int(1)))), Scope([], [
+        Return(ReturnStatement(Some(Value(Int(1))))),
+      ]), None)),
+      Return(ReturnStatement(Some(Binary(BinaryExpression(FunctionCall(FunctionCallExpression("fib", [
+        Binary(BinaryExpression(VariableReference(Normal("t")), Sub, Value(Int(1)))),
+      ])), Add, FunctionCall(FunctionCallExpression("fib", [
+        Binary(BinaryExpression(VariableReference(Normal("t")), Sub, Value(Int(2)))),
+      ]))))))),
+    ])))),
+    Function(FunctionDeclaration(Int, "main", [], Some(Scope([], [
+      Expression(Assignment(AssignmentExpression(Normal("i"), Value(Int(10))))),
+      Expression(Assignment(AssignmentExpression(Normal("result"), FunctionCall(FunctionCallExpression("fib", [
+        VariableReference(Normal("i")),
+      ]))))),
+      Expression(FunctionCall(FunctionCallExpression("putint", [
+        VariableReference(Normal("result")),
+      ]))),
+      Return(ReturnStatement(Some(Value(Int(0))))),
+    ])))),
+  ],
+)

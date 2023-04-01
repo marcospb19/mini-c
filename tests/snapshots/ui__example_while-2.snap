@@ -1,0 +1,58 @@
+---
+source: tests/ui.rs
+expression: test_mini_c(file_contents)
+---
+Program(
+  preamble: true,
+  declarations: [
+    Function(FunctionDeclaration(Int, "main", [], Some(Scope([
+      VariableDeclaration(Int, [
+        Normal("J"),
+        Normal("K"),
+      ]),
+      VariableDeclaration(Int, [
+        Array("A", 100),
+        Array("B", 100),
+      ]),
+      VariableDeclaration(Int, [
+        Normal("i"),
+      ]),
+      VariableDeclaration(Int, [
+        Normal("j"),
+      ]),
+    ], [
+      For(ForStatement((Some(Assignment(AssignmentExpression(Normal("i"), Value(Int(0))))), Some(Binary(BinaryExpression(VariableReference(Normal("i")), Less, Value(Int(100))))), Some(Assignment(AssignmentExpression(Normal("i"), Binary(BinaryExpression(VariableReference(Normal("i")), Add, Value(Int(1)))))))), Scope([], [
+        For(ForStatement((Some(Assignment(AssignmentExpression(Normal("j"), Value(Int(0))))), Some(Binary(BinaryExpression(VariableReference(Normal("j")), Less, Value(Int(100))))), Some(Assignment(AssignmentExpression(Normal("j"), Binary(BinaryExpression(VariableReference(Normal("j")), Add, Value(Int(1)))))))), Scope([], [
+          Expression(Assignment(AssignmentExpression(Array("A", VariableReference(Normal("i"))), Binary(BinaryExpression(VariableReference(Normal("i")), Add, VariableReference(Normal("j"))))))),
+        ]))),
+      ]))),
+      Expression(Assignment(AssignmentExpression(Normal("J"), Value(Int(0))))),
+      While(WhileStatement(Some(Binary(BinaryExpression(VariableReference(Normal("J")), Less, Value(Int(100))))), Scope([], [
+        Expression(Assignment(AssignmentExpression(Normal("K"), Value(Int(0))))),
+        While(WhileStatement(Some(Binary(BinaryExpression(VariableReference(Normal("K")), Less, Value(Int(100))))), Scope([], [
+          Expression(Assignment(AssignmentExpression(Normal("K"), Binary(BinaryExpression(VariableReference(Normal("K")), Add, Value(Int(1))))))),
+        ]))),
+        If(IfStatement(Binary(BinaryExpression(VariableReference(Array("B", VariableReference(Normal("J")))), Equals, VariableReference(Array("A", VariableReference(Normal("J")))))), Scope([], [
+          Break,
+        ]), None)),
+        Expression(Assignment(AssignmentExpression(Normal("J"), Binary(BinaryExpression(VariableReference(Normal("J")), Add, Value(Int(1))))))),
+      ]))),
+      Expression(FunctionCall(FunctionCallExpression("putint", [
+        VariableReference(Array("B", Value(Int(0)))),
+      ]))),
+      Expression(FunctionCall(FunctionCallExpression("putint", [
+        VariableReference(Array("B", Value(Int(1)))),
+      ]))),
+      Expression(FunctionCall(FunctionCallExpression("putint", [
+        VariableReference(Array("B", Value(Int(2)))),
+      ]))),
+      Expression(FunctionCall(FunctionCallExpression("putint", [
+        VariableReference(Array("B", Value(Int(3)))),
+      ]))),
+      Expression(FunctionCall(FunctionCallExpression("putint", [
+        VariableReference(Array("B", Value(Int(4)))),
+      ]))),
+      Return(ReturnStatement(Some(Value(Int(0))))),
+    ])))),
+  ],
+)

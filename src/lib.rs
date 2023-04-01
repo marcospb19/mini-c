@@ -1,79 +1,20 @@
-// #![feature(custom_inner_attributes)]
+pub mod test_utils {
+    use mini_c_ast::Program;
+    use mini_c_lexer::Lexer;
+    use mini_c_parser::ProgramParser;
 
-// use std::io::{self, Write};
+    pub fn generate_ast(input: impl AsRef<str>) -> Program {
+        let input = input.as_ref();
 
-// use sushi_common::SushiConfig;
-// use sushi_interpreter::{Interpreter, InterpreterMode};
+        let lexer = Lexer::new(input);
+        let ast = ProgramParser::new().parse(input, lexer);
 
-// pub fn run_sushi_repl() -> io::Result<()> {
-//     let (mut stdout, mut stderr) = (io::stdout(), io::stderr());
-
-//     let mut interpreter = Interpreter::new(&mut stdout, &mut stderr, SushiConfig::with_colors());
-
-//     loop {
-//         print!("> ");
-//         io::stdout().flush()?;
-
-//         let mut line = String::new();
-//         let bytes = io::stdin().read_line(&mut line)?;
-
-//         if bytes == 0 {
-//             return Ok(());
-//         }
-
-//         // If errors appear, report them and keep the REPL running.
-//         match interpreter.execute_file(&line, InterpreterMode::Repl) {
-//             Ok(_) => {}
-//             Err(err) => eprintln!("{err}"),
-//         }
-//     }
-// }
-
-// pub mod test_utils {
-//     use std::fmt;
-
-//     use super::*;
-
-//     pub fn test_sushi(input: impl AsRef<str>) -> OutputCapture {
-//         let (mut stdout, mut stderr) = (vec![], vec![]);
-
-//         let mut interpreter =
-//             Interpreter::new(&mut stdout, &mut stderr, SushiConfig::without_colors());
-
-//         interpreter
-//             .execute_file(input.as_ref(), InterpreterMode::Normal)
-//             .unwrap();
-
-//         let vec_to_string = |vec| String::from_utf8(vec).expect("Sushi output must be valid utf8");
-
-//         let [stdout, stderr] = [stdout, stderr].map(vec_to_string);
-
-//         OutputCapture { stdout, stderr }
-//     }
-
-//     #[derive(Debug)]
-//     pub struct OutputCapture {
-//         pub stdout: String,
-//         pub stderr: String,
-//     }
-
-//     impl fmt::Display for OutputCapture {
-//         fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-//             let Self { stdout, stderr } = self;
-
-//             writeln!(f, "### stdout ###")?;
-//             if stdout.is_empty() {
-//                 writeln!(f, "[EMPTY]")?;
-//             } else {
-//                 write!(f, "{stdout}")?;
-//             }
-
-//             writeln!(f, "### stderr ###")?;
-//             if stderr.is_empty() {
-//                 writeln!(f, "[EMPTY]")
-//             } else {
-//                 write!(f, "{stderr}")
-//             }
-//         }
-//     }
-// }
+        match ast {
+            Ok(inner) => inner,
+            Err(err) => {
+                dbg!(err);
+                panic!("failing here, TODO this is kinda wrong.");
+            }
+        }
+    }
+}

@@ -1,0 +1,50 @@
+---
+source: tests/ui.rs
+expression: test_mini_c(file_contents)
+---
+Program(
+  preamble: true,
+  declarations: [
+    Function(FunctionDeclaration(Int, "mod", [
+      Parameter(Int, "a"),
+      Parameter(Int, "b"),
+    ], Some(Scope([], [
+      Return(ReturnStatement(Some(Binary(BinaryExpression(VariableReference(Normal("a")), Sub, Binary(BinaryExpression(Binary(BinaryExpression(VariableReference(Normal("a")), Div, VariableReference(Normal("b")))), Mul, VariableReference(Normal("b"))))))))),
+    ])))),
+    Function(FunctionDeclaration(Int, "gcd", [
+      Parameter(Int, "a"),
+      Parameter(Int, "b"),
+    ], Some(Scope([], [
+      If(IfStatement(Binary(BinaryExpression(VariableReference(Normal("b")), Equals, Value(Int(0)))), Scope([], [
+        Return(ReturnStatement(Some(VariableReference(Normal("a"))))),
+      ]), Some(Scope([], [
+        Return(ReturnStatement(Some(FunctionCall(FunctionCallExpression("gcd", [
+          VariableReference(Normal("b")),
+          FunctionCall(FunctionCallExpression("mod", [
+            VariableReference(Normal("a")),
+            VariableReference(Normal("b")),
+          ])),
+        ]))))),
+      ])))),
+    ])))),
+    Function(FunctionDeclaration(Int, "main", [], Some(Scope([
+      VariableDeclaration(Int, [
+        Normal("a"),
+        Normal("b"),
+        Normal("divisor"),
+      ]),
+    ], [
+      Expression(Assignment(AssignmentExpression(Normal("a"), FunctionCall(FunctionCallExpression("getint", []))))),
+      Expression(Assignment(AssignmentExpression(Normal("b"), FunctionCall(FunctionCallExpression("getint", []))))),
+      Expression(Assignment(AssignmentExpression(Normal("divisor"), FunctionCall(FunctionCallExpression("gcd", [
+        VariableReference(Normal("a")),
+        VariableReference(Normal("b")),
+      ]))))),
+      Expression(FunctionCall(FunctionCallExpression("putint", [
+        VariableReference(Normal("divisor")),
+      ]))),
+      Expression(FunctionCall(FunctionCallExpression("putnewline", []))),
+      Return(ReturnStatement(Some(Value(Int(0))))),
+    ])))),
+  ],
+)

@@ -15,17 +15,17 @@ edition = "2021"
 glob = "0.3.1"
 mini-c-parser = { path = "components/mini-c-parser" }
 mini-c-lexer = { path = "components/mini-c-lexer" }
-# mini-c-ast = { path = "components/mini-c-ast" }
+mini-c-ast = { path = "components/mini-c-ast" }
 # mini-c-common = { path = "components/mini-c-common" }
 # sushi-interpreter = { path = "components/sushi-interpreter" }
 # lalrpop-util = { version = "0.19.8", default-features = false }
 
 [dev-dependencies]
-insta = "1.21.0"
+insta = { version = "1.21.0", features = ["ron", "csv", "json", "toml", "yaml"] }
+fs-err = "2.9.0"
 unindent = "0.1.10"
 
 # Speed up tests
 [profile.dev.package]
 insta = { opt-level = 3 }
 similar = { opt-level = 3 }
-unindent = { opt-level = 3 }

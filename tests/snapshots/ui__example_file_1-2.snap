@@ -1,0 +1,38 @@
+---
+source: tests/ui.rs
+expression: test_mini_c(file_contents)
+---
+Program(
+  preamble: true,
+  declarations: [
+    Function(FunctionDeclaration(Int, "max", [
+      Parameter(Int, "a"),
+      Parameter(Int, "b"),
+    ], Some(Scope([], [
+      If(IfStatement(Binary(BinaryExpression(VariableReference(Normal("a")), Greater, VariableReference(Normal("b")))), Scope([], [
+        Return(ReturnStatement(Some(VariableReference(Normal("a"))))),
+      ]), Some(Scope([], [
+        Return(ReturnStatement(Some(VariableReference(Normal("b"))))),
+      ])))),
+    ])))),
+    Function(FunctionDeclaration(Int, "main", [], Some(Scope([
+      VariableDeclaration(Int, [
+        Normal("a"),
+        Normal("b"),
+        Normal("maximum"),
+      ]),
+    ], [
+      Expression(Assignment(AssignmentExpression(Normal("a"), FunctionCall(FunctionCallExpression("getint", []))))),
+      Expression(Assignment(AssignmentExpression(Normal("b"), FunctionCall(FunctionCallExpression("getint", []))))),
+      Expression(Assignment(AssignmentExpression(Normal("maximum"), FunctionCall(FunctionCallExpression("max", [
+        VariableReference(Normal("a")),
+        VariableReference(Normal("b")),
+      ]))))),
+      Expression(FunctionCall(FunctionCallExpression("putint", [
+        VariableReference(Normal("maximum")),
+      ]))),
+      Expression(FunctionCall(FunctionCallExpression("putnewline", []))),
+      Return(ReturnStatement(Some(Value(Int(0))))),
+    ])))),
+  ],
+)
