@@ -1,9 +1,12 @@
 use std::fs;
 
 use mini_c_lexer::Lexer;
+use mini_c_llvm_codegen::{Compiler, LlvmContext};
 use mini_c_parser::ProgramParser;
 
 fn main() {
+    let ctx: LlvmContext = LlvmContext::create();
+
     let examples = glob::glob("examples/*").unwrap();
 
     for path in examples {
@@ -11,13 +14,12 @@ fn main() {
         let input = fs::read_to_string(&path).unwrap();
 
         let lexer = Lexer::new(&input);
-        let ast = ProgramParser::new().parse(&input, lexer);
+        let ast = ProgramParser::new().parse(&input, lexer).unwrap();
 
-        if let Err(err) = ast {
-            dbg!(err);
-            println!("failing on = {}", path.display());
-            return;
-        }
+        let mut compiler = Compiler::new(&ctx);
+        let compiled = compiler.compile(&ast);
+
+        let _ = dbg!(compiled);
     }
 
     println!("all succeeded");

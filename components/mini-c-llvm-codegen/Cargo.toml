@@ -1,0 +1,9 @@
+[package]
+name = "mini-c-llvm-codegen"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+mini-c-ast = { path = "../mini-c-ast" }
+inkwell = { version = "0.1.1", features = ["llvm15-0"] }
+lazy_static = "1.4.0"

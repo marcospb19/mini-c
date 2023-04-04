@@ -33,6 +33,12 @@ pub enum VariableDeclarationItem {
 #[derive(Debug, Clone, Serialize)]
 pub struct FunctionDeclaration(pub Type, pub Ident, pub Vec<Parameter>, pub Option<Scope>);
 
+impl FunctionDeclaration {
+    pub fn ident(&self) -> &Ident {
+        &self.1
+    }
+}
+
 #[derive(Debug, Clone, Serialize)]
 pub struct Parameter(pub Type, pub Ident);
 
