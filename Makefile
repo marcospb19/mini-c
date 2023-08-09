@@ -1,13 +1,19 @@
-# Aliases
-t: test
-r: review
+check: set_env
+	@cargo check
 
+run: set_env
+	@cargo run
+
+set_env:
+	@export LLVM_SYS_150_PREFIX=$(realpath ../llvm/clang*/)
+
+# Insta stuff
 test:
 	@cargo insta test
 
 review:
 	@cargo insta review
 
-setup:
-	@echo 'Installing git hook'
-	cp scripts/git_hooks/* .git/hooks/
+# Aliases for insta
+t: test
+r: review
