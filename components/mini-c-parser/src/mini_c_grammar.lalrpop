@@ -21,7 +21,6 @@ use mini_c_ast::{
     UnaryOperator,
     Value,
     VariableDeclaration,
-    VariableDeclarationItem,
     VariableReferenceExpression,
     WhileStatement,
 };
@@ -41,17 +40,27 @@ Declaration: Declaration = {
     VariableDeclaration => Declaration::Variable(<>),
     FunctionDeclaration => Declaration::Function(<>),
 };
-VariableDeclaration: VariableDeclaration = <Type> <NonEmptyListOf<VariableDeclarationItem>> ";" => VariableDeclaration(<>);
-VariableDeclarationItem: VariableDeclarationItem = {
-    Ident => VariableDeclarationItem::Normal(<>),
-    <Ident> "[" <Int> "]" => VariableDeclarationItem::Array(<>),
+VariableDeclaration: Vec<VariableDeclaration> =
+    <typ:Type> <variable_declarations:NonEmptyListOf<VariableDeclarationItem>> ";" =>
+        {
+            variable_declarations
+                .into_iter()
+                .map(|(ident, array_len)| VariableDeclaration { typ, ident, array_len })
+                .collect()
+        };
+VariableDeclarationItem: (Ident, Option<usize>) = {
+    Ident => (<>, None),
+    <ident:Ident> "[" <size:PositiveInt> "]" => (ident, Some(size)),
 };
 FunctionDeclaration: FunctionDeclaration = {
-    <Type> <Ident> "(" <ListOf<Parameter>> ")" <ScopeOrSemicolon> => FunctionDeclaration(<>)
+    <Type> <Ident> "(" <ListOf<Parameter>> ")" <Scope> => FunctionDeclaration(<>)
 };
 
 Parameter: Parameter = Type Ident => Parameter(<>);
-Scope: Scope = "{" <VariableDeclaration*> <Statement*> "}" => Scope(<>);
+Scope: Scope = "{" <vars:VariableDeclaration?> <statements:Statement*> "}" =>
+    {
+        Scope(vars.unwrap_or(vec![]), statements)
+    };
 
 Statement: Statement = {
     IfStatement => Statement::If(<>),
@@ -85,7 +94,7 @@ pub Expression = ExpressionPrecedenceStart;
 ExpressionPrecedenceStart = AssignmentExpression;
 
 AssignmentExpression = {
-    <VariableReferenceExpression> "=" <AssignmentExpression> => Expression::Assignment(box AssignmentExpression(<>)),
+    <VariableReferenceExpression> "=" <AssignmentExpression> => Expression::Assignment(Box::new(AssignmentExpression(<>))),
     OrExpression,
 };
 OrExpression = BinaryOperationLevel<OrOperator, AndExpression>;
@@ -100,7 +109,7 @@ PrimaryExpression: Expression = {
     "(" <Expression> ")",
     ValueExpression => Expression::Value(<>),
     FunctionCallExpression => Expression::FunctionCall(<>),
-    VariableReferenceExpression => Expression::VariableReference(box <>),
+    VariableReferenceExpression => Expression::VariableReference(Box::new(<>)),
 };
 FunctionCallExpression: FunctionCallExpression = <Ident> "(" <ListOf<Expression>> ")" => FunctionCallExpression(<>);
 VariableReferenceExpression: VariableReferenceExpression = {
@@ -134,6 +143,8 @@ ValueExpression: Value = {
     Int => Value::Int(<>),
     Bool => Value::Bool(<>),
 };
+PositiveInt: usize = "{int}" =>? usize::from_str(<>)
+    .map_err(|err| error(MiniCParseError::InvalidInteger(<>.to_owned(), err)));
 Int: i64 = "{int}" =>? i64::from_str(<>)
     .map_err(|err| error(MiniCParseError::InvalidInteger(<>.to_owned(), err)));
 Bool: bool = {
@@ -150,11 +161,6 @@ Type: Type = {
             _ => Err(error(MiniCParseError::InvalidType(<>.into()))),
         }
     },
-};
-
-ScopeOrSemicolon: Option<Scope> = {
-    Scope => Some(<>),
-    ";" => None,
 };
 
 Ident: Ident = "{ident}" => <>.to_owned();
@@ -179,13 +185,13 @@ NonEmptyListOf<T>: Vec<T> = {
 
 // Macro: precedence level definition macro for binary expressions
 BinaryOperationLevel<Operator, NextLevel>: Expression = {
-    BinaryOperationLevel<Operator,NextLevel> Operator NextLevel => Expression::Binary(box BinaryExpression(<>)),
+    BinaryOperationLevel<Operator,NextLevel> Operator NextLevel => Expression::Binary(Box::new(BinaryExpression(<>))),
     NextLevel,
 };
 
 // Macro: precedence level definition macro for unary expressions
 UnaryOperationLevel<Operator, NextLevel>: Expression = {
-    <op:Operator> <r:UnaryOperationLevel<Operator,NextLevel>> => Expression::Unary(box UnaryExpression(<>)),
+    <op:Operator> <r:UnaryOperationLevel<Operator,NextLevel>> => Expression::Unary(Box::new(UnaryExpression(<>))),
     NextLevel,
 };
 

@@ -10,14 +10,18 @@ pub struct Program {
 
 #[derive(Debug, Clone, Serialize)]
 pub enum Declaration {
-    Variable(VariableDeclaration),
+    Variable(Vec<VariableDeclaration>),
     Function(FunctionDeclaration),
 }
 
 #[derive(Debug, Clone, Serialize)]
-pub struct VariableDeclaration(pub Type, pub Vec<VariableDeclarationItem>);
+pub struct VariableDeclaration {
+    pub ident: Ident,
+    pub typ: Type,
+    pub array_len: Option<usize>,
+}
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Copy, PartialEq)]
 pub enum Type {
     Void,
     Int,
@@ -25,13 +29,7 @@ pub enum Type {
 }
 
 #[derive(Debug, Clone, Serialize)]
-pub enum VariableDeclarationItem {
-    Normal(Ident),
-    Array(Ident, i64),
-}
-
-#[derive(Debug, Clone, Serialize)]
-pub struct FunctionDeclaration(pub Type, pub Ident, pub Vec<Parameter>, pub Option<Scope>);
+pub struct FunctionDeclaration(pub Type, pub Ident, pub Vec<Parameter>, pub Scope);
 
 impl FunctionDeclaration {
     pub fn ident(&self) -> &Ident {

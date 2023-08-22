@@ -1,3 +1,9 @@
+// use std::io;
+
+// struct Environment<W: io::Write> {
+//     pub stderr: W,
+// }
+
 pub mod test_utils {
     use mini_c_ast::Program;
     use mini_c_lexer::Lexer;

@@ -1,7 +1,5 @@
 //! The parser is written with LALRPOP.
 
-#![feature(box_syntax)]
-
 // Export
 pub use lalrpop_codegen::mini_c_grammar::*;
 // wtf, why this here
