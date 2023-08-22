@@ -105,7 +105,7 @@ impl<'ctx> Compiler<'ctx> {
     }
 
     pub fn run(&self) {
-        println!("--------- Executing this LLVM IR: ---------");
+        println!("--------- Generated LLVM IR: ---------");
 
         println!("{}", self.module.print_to_string().to_string());
         self.module.print_to_file("llvm-ir.ll").unwrap();
