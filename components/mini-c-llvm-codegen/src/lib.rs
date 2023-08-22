@@ -58,20 +58,23 @@ pub enum CompileTimeError {
 type Result<T, E = CompileTimeError> = std::result::Result<T, E>;
 
 #[must_use]
-pub struct Compiler<'ctx> {
+pub struct Compiler {
     // Needed LLVM interface
-    context: &'ctx LlvmContext,
-    module: Module<'ctx>,
-    builder: Builder<'ctx>,
+    context: &'static LlvmContext,
+    module: Module<'static>,
+    builder: Builder<'static>,
     // Our storage for LLVM stuff
-    vars: HashMap<Ident, PointerValue<'ctx>>,
+    vars: HashMap<Ident, PointerValue<'static>>,
     function_block_counter: usize,
     // Our type system
     type_system: TypeSystem,
 }
 
-impl<'ctx> Compiler<'ctx> {
-    pub fn new(context: &'ctx LlvmContext) -> Self {
+impl Compiler {
+    pub fn new() -> Self {
+        let context = LlvmContext::create();
+        let context = Box::leak(context.into());
+
         let ir = builtins::BUILTINS_IR;
         let ir = MemoryBuffer::create_from_memory_range_copy(ir.as_bytes(), "main_module_filename");
 
@@ -295,7 +298,7 @@ impl<'ctx> Compiler<'ctx> {
         Ok(())
     }
 
-    fn compile_expression(&mut self, expression: &Expression) -> Result<LlvmExpr<'ctx>> {
+    fn compile_expression(&mut self, expression: &Expression) -> Result<LlvmExpr> {
         let value = match expression {
             Expression::Value(value) => self.compile_expression_value(value)?,
             Expression::Assignment(assignment) => self.compile_expression_assignment(assignment)?,
@@ -311,7 +314,7 @@ impl<'ctx> Compiler<'ctx> {
         Ok(value)
     }
 
-    fn compile_expression_value(&mut self, value: &Value) -> Result<LlvmExpr<'ctx>> {
+    fn compile_expression_value(&mut self, value: &Value) -> Result<LlvmExpr> {
         Ok(match value {
             Value::Int(int) => LlvmExpr::Int(self.context.i64_type().const_int(*int as u64, false)),
             Value::Bool(boo) => {
@@ -323,7 +326,7 @@ impl<'ctx> Compiler<'ctx> {
     fn compile_expression_assignment(
         &mut self,
         assignment: &AssignmentExpression,
-    ) -> Result<LlvmExpr<'ctx>> {
+    ) -> Result<LlvmExpr> {
         let AssignmentExpression(variable_reference, expression) = assignment;
 
         let value = self.compile_expression(expression)?;
@@ -360,10 +363,7 @@ impl<'ctx> Compiler<'ctx> {
         Ok(value)
     }
 
-    fn compile_expression_binary(
-        &mut self,
-        expression: &BinaryExpression,
-    ) -> Result<LlvmExpr<'ctx>> {
+    fn compile_expression_binary(&mut self, expression: &BinaryExpression) -> Result<LlvmExpr> {
         let BinaryExpression(lhs, operator, rhs) = expression;
 
         // let [lhs, rhs] = [lhs, rhs].try_map(|expr| self.compile_expression(expr))?;
@@ -374,24 +374,24 @@ impl<'ctx> Compiler<'ctx> {
             todo!("types mismatch, return error here");
         }
 
-        let Some(lhs) = (match lhs {
-            LlvmExpr::Void => None,
-            LlvmExpr::Int(value) | LlvmExpr::Bool(value) => Some(value),
-        }) else {
-            unimplemented!();
-        };
-        let Some(rhs) = (match rhs {
-            LlvmExpr::Void => None,
-            LlvmExpr::Int(value) | LlvmExpr::Bool(value) => Some(value),
-        }) else {
-            unimplemented!();
-        };
+        // let Some(lhs) = (match lhs {
+        //     LlvmExpr::Void => None,
+        //     LlvmExpr::Int(value) | LlvmExpr::Bool(value) => Some(value),
+        // }) else {
+        //     unimplemented!();
+        // };
+        // let Some(rhs) = (match rhs {
+        //     LlvmExpr::Void => None,
+        //     LlvmExpr::Int(value) | LlvmExpr::Bool(value) => Some(value),
+        // }) else {
+        //     unimplemented!();
+        // };
 
         // let lhs: IntValue = unsafe { (&lhs as *const _ as *const IntValue).read() };
         // let rhs: IntValue = unsafe { (&rhs as *const _ as *const IntValue).read() };
 
-        // let lhs = lhs.to_value().unwrap();
-        // let rhs = rhs.to_value().unwrap();
+        let lhs = lhs.to_value().unwrap();
+        let rhs = rhs.to_value().unwrap();
 
         let operation_value = match operator {
             BinaryOperator::Add => self.builder.build_int_add(lhs, rhs, ""),
@@ -405,10 +405,10 @@ impl<'ctx> Compiler<'ctx> {
         Ok(llvm_expr)
     }
 
-    fn compile_expression_function_call(
-        &mut self,
+    fn compile_expression_function_call<'a>(
+        &'a mut self,
         call: &FunctionCallExpression,
-    ) -> Result<LlvmExpr<'ctx>> {
+    ) -> Result<LlvmExpr> {
         let FunctionCallExpression(function_ident, arguments) = call;
 
         let Some(function) = self.module.get_function(function_ident) else {
@@ -454,7 +454,7 @@ impl<'ctx> Compiler<'ctx> {
 
         let call_site = self
             .builder
-            .build_call(function, &arguments, "")
+            .build_call(function, arguments.as_slice(), "")
             .try_as_basic_value();
 
         Ok(LlvmExpr::from(call_site))
@@ -463,7 +463,7 @@ impl<'ctx> Compiler<'ctx> {
     fn compile_expression_variable_reference(
         &mut self,
         variable_reference: &VariableReferenceExpression,
-    ) -> Result<LlvmExpr<'ctx>> {
+    ) -> Result<LlvmExpr> {
         let ident = match variable_reference {
             VariableReferenceExpression::Normal(ident) => ident,
             _ => todo!("Arrays are not supported"),
@@ -571,13 +571,14 @@ impl TypeSystemScopes {
     }
 }
 
-enum LlvmExpr<'a> {
+#[derive(Clone, Copy)]
+enum LlvmExpr {
     Void,
-    Int(IntValue<'a>),
-    Bool(IntValue<'a>),
+    Int(IntValue<'static>),
+    Bool(IntValue<'static>),
 }
 
-impl<'a> LlvmExpr<'a> {
+impl LlvmExpr {
     fn to_type(&self) -> Type {
         match self {
             Self::Void => Type::Void,
@@ -586,29 +587,24 @@ impl<'a> LlvmExpr<'a> {
         }
     }
 
-    fn to_value<'b>(&'a self) -> Option<IntValue<'b>>
-    where
-        'a: 'b,
-        // 'a: 'b,
-    {
-        // fn to_value(&'a self) -> Option<IntValue<'a>> {
+    fn to_value(self) -> Option<IntValue<'static>> {
         match self {
             Self::Void => None,
-            Self::Int(value) | Self::Bool(value) => Some(*value),
+            Self::Int(value) | Self::Bool(value) => Some(value),
         }
     }
 
-    fn to_metadata_value_enum(&self) -> Option<BasicMetadataValueEnum<'a>> {
+    fn to_metadata_value_enum(self) -> Option<BasicMetadataValueEnum<'static>> {
         match self {
-            &Self::Void => None,
-            &Self::Int(value) | &Self::Bool(value) => Some(value.into()),
+            Self::Void => None,
+            Self::Int(value) | Self::Bool(value) => Some(value.into()),
         }
     }
 }
 
 type TryAsBasicValueReturnType<'a> = Either<BasicValueEnum<'a>, InstructionValue<'a>>;
-impl<'a> From<TryAsBasicValueReturnType<'a>> for LlvmExpr<'a> {
-    fn from(value: TryAsBasicValueReturnType<'a>) -> Self {
+impl From<TryAsBasicValueReturnType<'static>> for LlvmExpr {
+    fn from(value: TryAsBasicValueReturnType<'static>) -> Self {
         match value {
             Either::Left(value) => Self::from(value.into_int_value()),
             Either::Right(_) => LlvmExpr::Void,
@@ -616,20 +612,20 @@ impl<'a> From<TryAsBasicValueReturnType<'a>> for LlvmExpr<'a> {
     }
 }
 
-impl<'a> From<BasicMetadataValueEnum<'a>> for LlvmExpr<'a> {
-    fn from(value: BasicMetadataValueEnum<'a>) -> Self {
+impl From<BasicMetadataValueEnum<'static>> for LlvmExpr {
+    fn from(value: BasicMetadataValueEnum<'static>) -> Self {
         value.into_int_value().into()
     }
 }
 
-impl<'a> From<BasicValueEnum<'a>> for LlvmExpr<'a> {
-    fn from(value: BasicValueEnum<'a>) -> Self {
+impl From<BasicValueEnum<'static>> for LlvmExpr {
+    fn from(value: BasicValueEnum<'static>) -> Self {
         value.into_int_value().into()
     }
 }
 
-impl<'a> From<IntValue<'a>> for LlvmExpr<'a> {
-    fn from(value: IntValue<'a>) -> Self {
+impl From<IntValue<'static>> for LlvmExpr {
+    fn from(value: IntValue<'static>) -> Self {
         if value.get_type().get_bit_width() == 1 {
             Self::Bool(value)
         } else {

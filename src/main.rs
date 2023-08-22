@@ -1,12 +1,10 @@
 use std::{fs, path::PathBuf};
 
 use mini_c_lexer::Lexer;
-use mini_c_llvm_codegen::{Compiler, LlvmContext};
+use mini_c_llvm_codegen::Compiler;
 use mini_c_parser::ProgramParser;
 
 fn main() {
-    let ctx: LlvmContext = LlvmContext::create();
-
     let files = get_file_args();
 
     for path in files {
@@ -17,7 +15,7 @@ fn main() {
             .parse(&input, lexer)
             .expect("Failed to parse program");
 
-        let mut compiler = Compiler::new(&ctx);
+        let mut compiler = Compiler::new();
         compiler.compile(&ast).expect("Failed to compile program");
         compiler.run();
     }
