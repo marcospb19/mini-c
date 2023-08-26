@@ -100,6 +100,7 @@ pub enum BinaryOperator {
     Sub,
     Mul,
     Div,
+    Modulo,
     And,
     Or,
     Equals,

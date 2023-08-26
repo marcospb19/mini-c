@@ -136,6 +136,7 @@ TermOperator: BinaryOperator = {
 FactorOperator: BinaryOperator = {
     "*" => BinaryOperator::Mul,
     "/" => BinaryOperator::Div,
+    "%" => BinaryOperator::Modulo,
 };
 NegationOperator: UnaryOperator = "-" => UnaryOperator::Negative;
 
@@ -232,6 +233,7 @@ extern {
         "+" => Token::Plus,
         "-" => Token::Minus,
         "*" => Token::Star,
+        "%" => Token::Modulo,
         "/" => Token::Slash,
         "&&" => Token::And,
         "||" => Token::Or,

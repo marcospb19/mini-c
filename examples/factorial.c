@@ -1,3 +1,5 @@
+// factorial(8) == 40320
+
 void print_number_rec(int number) {
   if (number == 0) {
     return;
@@ -22,19 +24,11 @@ void println_number(int number) {
 
 //
 
-int fibonacci(int n) {
+int factorial(int n) {
   if (n <= 1) {
     return 1;
   }
-  return fibonacci(n - 2) + fibonacci(n - 1);
+  return n * factorial(n - 1);
 }
 
-int main() {
-  int i;
-  i = 0;
-
-  while (i < 15) {
-    println_number(fibonacci(i));
-    i = i + 1;
-  }
-}
+int main() { println_number(factorial(8)); }

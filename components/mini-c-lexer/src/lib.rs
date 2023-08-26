@@ -97,6 +97,8 @@ pub enum Token<'input> {
     Star,
     #[token("/")]
     Slash,
+    #[token("%")]
+    Modulo,
     #[token("&&")]
     And,
     #[token("||")]

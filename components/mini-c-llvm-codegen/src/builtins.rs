@@ -1,34 +1,6 @@
-pub const BUILTINS_IR: &str = r#"
-    declare i32 @putchar(i8)
+pub const BUILTINS_IR: &str = include_str!("builtins.ll");
 
-    define void @print(i64 %0) {
-    entry:
-      %p_input = alloca i64, align 8
-      store i64 %0, ptr %p_input, align 4
-      br label %block_while_condition_1
-
-    block_while_condition_1:                          ; preds = %block_while_scope_2, %entry
-      %1 = load i64, ptr %p_input, align 4
-      %2 = icmp ne i64 %1, 0
-      br i1 %2, label %block_while_scope_2, label %block_while_end_3
-
-    block_while_scope_2:                              ; preds = %block_while_condition_1
-      %remainder = srem i64 %1, 10
-      %remainder_char = trunc i64 %remainder to i8
-      %remainder_i8_ascii = add i8 %remainder_char, 48
-      %3 = call i32 @putchar(i8 %remainder_i8_ascii)
-      %new_input_value = sdiv i64 %1, 10
-      store i64 %new_input_value, ptr %p_input, align 4
-      br label %block_while_condition_1
-
-    block_while_end_3:                                ; preds = %block_while_condition_1
-      %4 = call i32 @putchar(i8 10)
-      ret void
-    }
-"#;
-
-// The code that generated the IR above
-
+// The code that originally generated the IR above, before I edited it.
 /*
 fn compile_builtins(&mut self) {
     // Generation code
