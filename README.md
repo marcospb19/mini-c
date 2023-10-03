@@ -2,6 +2,24 @@
 
 My (_initial_) experiments building compilers with LLVM.
 
+# Examples:
+
+```c
+int fibonacci(int n) {
+  if (n <= 1) {
+    return 1;
+  }
+  return fibonacci(n - 2) + fibonacci(n - 1);
+}
+
+int factorial(int n) {
+  if (n <= 1) {
+    return 1;
+  }
+  return n * factorial(n - 1);
+}
+```
+
 # How
 
 I'm generating LLVM-IR using `inkwell`, it's the only decent library I found.
